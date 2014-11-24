@@ -1,4 +1,4 @@
-boolean red, green, blue;
+boolean red, green, blue, white;
 boolean falling_edge_trigger17 = false;
 boolean falling_edge_trigger13 = false;
 boolean stringComplete = false;
@@ -7,11 +7,13 @@ String inputString = "";
 void setup() {
   Serial.begin(9600);
 
+  pinMode(12, OUTPUT);
   pinMode(14, OUTPUT);
   pinMode(15, OUTPUT);
   pinMode(16, OUTPUT);
   pinMode(17, INPUT_PULLUP);
   pinMode(13, INPUT_PULLUP);
+  digitalWrite(12, true);
   digitalWrite(15, true);
   digitalWrite(16, true);
   digitalWrite(14, true);
@@ -45,7 +47,14 @@ void loop() {
     else if (inputString == "blueOFF") {
       //      Serial.println("Blue OFF");
       blue = false;
-
+    } 
+    else if (inputString == "whiteON") {
+      //      Serial.println("white ON");
+      white = true;
+    } 
+    else if (inputString == "whiteOFF") {
+      //      Serial.println("White OFF");
+      white = false;
     }
     stringComplete = false;
     inputString = "";
@@ -53,6 +62,7 @@ void loop() {
   digitalWrite(14, red);
   digitalWrite(15, green);
   digitalWrite(16, blue);
+  digitalWrite(12, white);
 
   if (digitalRead(17) == LOW) {
     if (falling_edge_trigger17 == false) {
@@ -67,7 +77,7 @@ void loop() {
   }  
   if (digitalRead(13) == LOW) {
     if (falling_edge_trigger13 == false) {
-      Serial.println("jump");
+      Serial.println("t jump");
       falling_edge_trigger13 = true;
       delay(10);
     }

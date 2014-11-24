@@ -8,13 +8,13 @@ int mode = 0;
 int time0, time1;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1;
 boolean serialData = false;
-boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
+boolean redON, greenON, blueON, whiteON, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
 String postData[] = new String[9];
 boolean pNameSet = false;
-String pName;
+String pName = "";
 int currentPerson;
 int count = 0;
 String total;
@@ -171,21 +171,29 @@ void draw() {
   create();
 
   switch(mode) {
-  case 0:  //Barcode not set
+  case 0:  //Set lights for initial position, no barcode set
     redON();
     greenOFF();
     blueOFF();
+    whiteOFF();
     mode = 1;
     break;
-  case 1: 
+  case 1: //Check for barcode or name clicked
+    if (nameSet) {
+      mode = 2;
+    }
     break;
   case 2:  //Barcode set
     blueON();
     redOFF();
     mode = 3;
     countDown = millis();
+    if (!pNameSet) {
+      pName = name;
+      pNameSet = true;
+    }
     break;
-  case 3:
+  case 3: //Flash run up light 
     if (serialData) {
       jumpStart = true;
       mode = 9;
@@ -224,7 +232,7 @@ void draw() {
       if (sectorIndex == 1) {
         String[] split = split(inData[0], " ");
         timeArray[0] = str(time1);
-        timeArray[sectorIndex] = split[1];
+        timeArray[sectorIndex] = split[1]; //<>//
       }
       else {
         timeArray[sectorIndex] = str(time1);
@@ -232,11 +240,7 @@ void draw() {
       serialData = false;
       sectorIndex++;
       greenOFF();
-      redON();
-      if (!pNameSet) {
-        pName = name;
-        pNameSet = true;
-      }
+      whiteON();
     }
     if (sectorIndex >= 5) {
       recieveData = false;
@@ -253,26 +257,27 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
-    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun"); //<>//
-    post.addData("id", postData[0]);
-    post.addData("reactionTime", postData[1]);
-    post.addData("speed", postData[2]);
-    post.addData("et", postData[3]);
-    post.addData("sector1", postData[4]);
-    post.addData("sector2", postData[5]);
-    post.addData("sector3", postData[6]);
-    post.addData("sector4", postData[7]);
-    post.addData("totalTime", postData[8]);
-    post.send();
+    //    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
+    //    post.addData("id", postData[0]);
+    //    post.addData("reactionTime", postData[1]);
+    //    post.addData("speed", postData[2]);
+    //    post.addData("et", postData[3]);
+    //    post.addData("sector1", postData[4]);
+    //    post.addData("sector2", postData[5]);
+    //    post.addData("sector3", postData[6]);
+    //    post.addData("sector4", postData[7]);
+    //    post.addData("totalTime", postData[8]);
+    //    post.send();
     mode = 0;
-  case 9:
+    break;
+  case 9:  //Jump start
     recieveData = false;
     sectorIndex = 0;
     nameSet = false;
     pNameSet = false;
     running = false;
     blueOFF();
-    if (millis() - lightTimer > 200) {
+    if (millis() - lightTimer > 100) {
       lightTimer = millis();
       lightFlash++;
     }
@@ -282,7 +287,7 @@ void draw() {
     else {
       redOFF();
     }
-    if (lightFlash > 10) {
+    if (lightFlash > 30) {
       mode = 1;
       jumpStart = false;
       lightFlash = 0;
@@ -301,7 +306,6 @@ void draw() {
   //  text(mouseY, 160, 20);
   //  text(mouseX - valueX, 190, 20);
   //  text(mouseY - valueY, 220, 20);
-  
 }
 
 void greenON() {
@@ -374,6 +378,29 @@ void redOFF() {
     serialData = false;
   }
 }
+void whiteON() {
+  if (!whiteON) {
+    if (serial) {
+      myPort.write("whiteON.");
+      myPort.clear();
+    }
+    println("White ON");
+    whiteON = true;
+    serialData = false;
+  }
+}
+
+void whiteOFF() {
+  if (whiteON) {
+    if (serial) {
+      myPort.write("whiteOFF.");
+      myPort.clear();
+    }
+    println("White OFF");
+    whiteON = false;
+    serialData = false;
+  }
+}
 
 void keyPressed() {
 
@@ -399,14 +426,7 @@ void keyPressed() {
         data[index][0] = selection;
         name = names[int(data[index][0])];
         count = 0;
-        if (firstClick == false) {
-          if (nameSet == false) {
-            //            index++;
-          }
-        }
         nameSet = true;
-        serialSent = false;
-        mode = 1;
       }
     }
   }
@@ -424,11 +444,6 @@ void controlEvent(ControlEvent theEvent) {
 }
 
 void updateName() {
-  if (firstClick == false) {
-    if (nameSet == false) {
-      //      index++;
-    }
-  }
   firstClick = false;
   println(names[selection]);
   l.captionLabel().set(names[selection]);
@@ -477,42 +492,6 @@ void formatPostData() {
   postData[6] = timeArray[3];
   postData[7] = timeArray[4];
   postData[8] = str(totalTime);
-}
-
-void setLight(String light, boolean state) {
-
-  myPort.write(light);
-  if (state) {
-    myPort.write("ON.");
-  } 
-  else {
-    myPort.write("OFF.");
-  }
-
-  if (light == "red") {
-    if (state) {
-      redON = true;
-    } 
-    else { 
-      redON = false;
-    }
-  } 
-  else if (light == "blue") {
-    if (state) {
-      blueON = true;
-    } 
-    else { 
-      blueON = false;
-    }
-  } 
-  else if (light == "green") {
-    if (state) {
-      greenON = true;
-    } 
-    else { 
-      greenON = false;
-    }
-  }
 }
 
 void create() {
@@ -830,18 +809,15 @@ void create() {
   if (count == 0 && nameSet == true) {
     fill(0, 255, 0);
     text("Ready", 20, 300);
-    if (mode < 3) {
-      mode = 2;
-    }
   } 
   else {
     fill(255, 0, 0);
     text("Not Ready", 20, 300);
   }
   //Text for current mode for the swtich
-//  text(mode, 20, 350);
-  
-  text(millis() - time0, 20, 350);
+  text(mode, 20, 350);
+
+  text(pName, 50, 350);
 
   //Variable lights
   if (nameSet) {
@@ -872,4 +848,11 @@ void create() {
     fill(0, 50, 0);
   }
   ellipse(20, 460, 40, 40);
+  if (whiteON) {
+    fill(255);
+  }
+  else {
+    fill(50);
+  }
+  ellipse(20, 510, 40, 40);
 }
