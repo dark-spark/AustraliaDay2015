@@ -6,7 +6,7 @@ Serial myPort;
 String inData[] = new String[1];
 int mode = 0;
 int time0, time1;
-int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1;
+int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
 boolean redON, greenON, blueON, yellowON, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
@@ -265,6 +265,7 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
+    int t = millis();
     PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
     post.addData("rider", postData[0]);
     post.addData("reactionTime", postData[1]);
@@ -277,6 +278,7 @@ void draw() {
     post.addData("totalTime", postData[8]);
     post.send();
     mode = 0;
+    r = millis() - t;
     break;
   case 9:  //Jump start
     recieveData = false;
@@ -828,13 +830,13 @@ void create() {
   }
   //Text for current mode for the swtich
   text(mode, 20, 350);
-
-  text(pName, 50, 350);
+  text(r, 70, 350);
+//  text(pName, 50, 350);
 
   //Variable lights
   if (nameSet) {
     fill(255, 0, 0);
-    ellipse(100, 320, 25, 25);
+//    ellipse(100, 320, 25, 25);
   }
 
   //Mimic lights
