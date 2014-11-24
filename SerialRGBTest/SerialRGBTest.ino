@@ -12,7 +12,9 @@ void setup() {
   pinMode(16, OUTPUT);
   pinMode(17, INPUT_PULLUP);
   pinMode(13, INPUT_PULLUP);
+  digitalWrite(15, true);
   digitalWrite(16, true);
+  digitalWrite(14, true);
   delay(1000);
 }
 
