@@ -15,6 +15,8 @@ String timeArray[] = new String[6];
 String postData[] = new String[9];
 boolean pNameSet = false;
 String pName = "";
+String pBarcode;
+String barcode;
 int currentPerson;
 int count = 0;
 String total;
@@ -191,6 +193,7 @@ void draw() {
     countDown = millis();
     if (!pNameSet) {
       pName = name;
+      pBarcode = barcode;
       pNameSet = true;
     }
     break;
@@ -249,6 +252,10 @@ void draw() {
       pNameSet = false;
       formatPostData();
       running = false;
+      redON();
+      greenOFF();
+      blueOFF();
+      yellowOFF();
       mode = 8;
     }
     if (jumpStart) {
@@ -258,17 +265,17 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
-    //    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
-    //    post.addData("id", postData[0]);
-    //    post.addData("reactionTime", postData[1]);
-    //    post.addData("speed", postData[2]);
-    //    post.addData("et", postData[3]);
-    //    post.addData("sector1", postData[4]);
-    //    post.addData("sector2", postData[5]);
-    //    post.addData("sector3", postData[6]);
-    //    post.addData("sector4", postData[7]);
-    //    post.addData("totalTime", postData[8]);
-    //    post.send();
+    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
+    post.addData("rider", postData[0]);
+    post.addData("reactionTime", postData[1]);
+    post.addData("speed", postData[2]);
+    post.addData("et", postData[3]);
+    post.addData("sector1", postData[4]);
+    post.addData("sector2", postData[5]);
+    post.addData("sector3", postData[6]);
+    post.addData("sector4", postData[7]);
+    post.addData("totalTime", postData[8]);
+    post.send();
     mode = 0;
     break;
   case 9:  //Jump start
@@ -428,6 +435,7 @@ void keyPressed() {
         l.captionLabel().set(names[selection]);
         data[index][0] = selection;
         name = names[int(data[index][0])];
+        barcode = barcodes[selection];
         count = 0;
         nameSet = true;
       }
@@ -452,6 +460,7 @@ void updateName() {
   l.captionLabel().set(names[selection]);
   data[index][0] = selection;
   name = names[int(data[index][0])];
+  barcode = barcodes[selection];
   count = 0;
   nameSet = true;
 }
@@ -486,15 +495,15 @@ void formatPostData() {
   float speed = trapDistance / int(timeArray[0]) * 360;
   int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
   int totalTime = et + reactionTime;
-  postData[0] = pName;
-  postData[1] = str(reactionTime);
+  postData[0] = pBarcode;
+  postData[1] = str(reactionTime + .0);
   postData[2] = str(speed);
-  postData[3] = str(et);
-  postData[4] = timeArray[1];
-  postData[5] = timeArray[2];
-  postData[6] = timeArray[3];
-  postData[7] = timeArray[4];
-  postData[8] = str(totalTime);
+  postData[3] = str(et + .0);
+  postData[4] = timeArray[1] + .0;
+  postData[5] = timeArray[2] + .0;
+  postData[6] = timeArray[3] + .0;
+  postData[7] = timeArray[4] + .0;
+  postData[8] = str(totalTime + .0);
 }
 
 void create() {
