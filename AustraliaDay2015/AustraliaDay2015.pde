@@ -8,7 +8,7 @@ int mode = 0;
 int time0, time1;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1;
 boolean serialData = false;
-boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, jumpStart, lightsFinished, serial;
+boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
 String sectorTime[] = new String[6];
@@ -153,7 +153,7 @@ void serialEvent (Serial myPort) {
   if (inString != null) {
     String js[] = match(inString, "jump");
     String match[] = match(inString, "t");
-    if (running && js != null) {
+    if (jumpEnable && js != null) {
       jumpStart = true;
     }
     if (match != null) {
@@ -184,6 +184,7 @@ void draw() {
   case 1: 
     break;
   case 2:  //Barcode set
+    jumpEnable = true;
     blueON();
     redOFF();
     mode = 3;
@@ -204,7 +205,6 @@ void draw() {
       mode = 4;
       lightFlash = 0;
     }
-    running = true;
     if (jumpStart) {
       mode = 9;
     }
@@ -212,9 +212,11 @@ void draw() {
   case 4:  //Set lights
     blueOFF();
     greenON();
+    jumpEnable = false;
     reactionTime0 = millis();
     recieveData = true;
     nameSet = false;
+    running = true;
     mode = 6;
     if (jumpStart) {
       mode = 9;
@@ -270,6 +272,12 @@ void draw() {
     post.send();
     mode = 0;
   case 9:
+    recieveData = false;
+    sectorIndex = 0;
+    nameSet = false;
+    pNameSet = false;
+    running = false;
+    blueOFF();
     if (millis() - lightTimer > 200) {
       lightTimer = millis();
       lightFlash++;
@@ -843,6 +851,12 @@ void create() {
   }
   //Text for current mode for the swtich
   text(mode, 20, 350);
+
+  //Variable lights
+  if (nameSet) {
+    fill(255, 0, 0);
+    ellipse(60, 320, 25, 25);
+  } 
 
   //Mimic lights
   ellipseMode(CORNER);
