@@ -11,7 +11,7 @@ boolean serialData = false;
 boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
-String sectorTime[] = new String[6];
+String timeArray[] = new String[6];
 String postData[] = new String[9];
 boolean pNameSet = false;
 String pName;
@@ -151,11 +151,7 @@ void setup() {
 void serialEvent (Serial myPort) {
   String inString = myPort.readStringUntil('\n');
   if (inString != null) {
-    String js[] = match(inString, "jump");
     String match[] = match(inString, "t");
-    if (jumpEnable && js != null) {
-      jumpStart = true;
-    }
     if (match != null) {
       time1 = millis() - time0;
       time0 = millis();
@@ -184,13 +180,16 @@ void draw() {
   case 1: 
     break;
   case 2:  //Barcode set
-    jumpEnable = true;
     blueON();
     redOFF();
     mode = 3;
     countDown = millis();
     break;
   case 3:
+    if (serialData) {
+      jumpStart = true;
+      mode = 9;
+    }
     if (millis() - lightTimer > 500) {
       lightTimer = millis();
       lightFlash++;
@@ -205,35 +204,30 @@ void draw() {
       mode = 4;
       lightFlash = 0;
     }
-    if (jumpStart) {
-      mode = 9;
-    }
     break;
   case 4:  //Set lights
     blueOFF();
     greenON();
-    jumpEnable = false;
     reactionTime0 = millis();
     recieveData = true;
     nameSet = false;
     running = true;
     mode = 6;
-    if (jumpStart) {
-      mode = 9;
-    }
     break;
   case 5:
     break;
   case 6:  //Recieve Data
-    if (serialData == true) {
+    if (serialData) {
       if (sectorIndex == 0) {
-        reactionTime1 = millis() - reactionTime0;
+        reactionTime = millis() - reactionTime0;
+      }
+      if (sectorIndex == 1) {
         String[] split = split(inData[0], " ");
-        sectorTime[sectorIndex] = split[1];
-        reactionTime = reactionTime1 - int(sectorTime[0]);
-      } 
+        timeArray[0] = str(time1);
+        timeArray[sectorIndex] = split[1];
+      }
       else {
-        sectorTime[sectorIndex] = str(time1);
+        timeArray[sectorIndex] = str(time1);
       }
       serialData = false;
       sectorIndex++;
@@ -244,7 +238,7 @@ void draw() {
         pNameSet = true;
       }
     }
-    if (sectorIndex >= 4) {
+    if (sectorIndex >= 5) {
       recieveData = false;
       sectorIndex = 0;
       pNameSet = false;
@@ -259,7 +253,7 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
-    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
+    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun"); //<>//
     post.addData("id", postData[0]);
     post.addData("reactionTime", postData[1]);
     post.addData("speed", postData[2]);
@@ -267,8 +261,8 @@ void draw() {
     post.addData("sector1", postData[4]);
     post.addData("sector2", postData[5]);
     post.addData("sector3", postData[6]);
-    post.addData("totalTime", postData[7]);
-    post.addData("jumpStart", postData[8]);
+    post.addData("sector4", postData[7]);
+    post.addData("totalTime", postData[8]);
     post.send();
     mode = 0;
   case 9:
@@ -307,6 +301,7 @@ void draw() {
   //  text(mouseY, 160, 20);
   //  text(mouseX - valueX, 190, 20);
   //  text(mouseY - valueY, 220, 20);
+  
 }
 
 void greenON() {
@@ -470,24 +465,18 @@ void mousePressed() {
 }
 
 void formatPostData() {
-  float speed = trapDistance / int(sectorTime[0]) * 360;
-  int et = int(sectorTime[0]) + int(sectorTime[1]) + int(sectorTime[2]) + int(sectorTime[3]);
-  int firstSector = int(sectorTime[0]) + int(sectorTime[1]);
+  float speed = trapDistance / int(timeArray[0]) * 360;
+  int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
   int totalTime = et + reactionTime;
   postData[0] = pName;
   postData[1] = str(reactionTime);
   postData[2] = str(speed);
   postData[3] = str(et);
-  postData[4] = str(firstSector);
-  postData[5] = sectorTime[2];
-  postData[6] = sectorTime[3];
-  postData[7] = str(totalTime);
-  if (jumpStart) {
-    postData[8] = "1";
-  }
-  else {
-    postData[8] = "0";
-  }
+  postData[4] = timeArray[1];
+  postData[5] = timeArray[2];
+  postData[6] = timeArray[3];
+  postData[7] = timeArray[4];
+  postData[8] = str(totalTime);
 }
 
 void setLight(String light, boolean state) {
@@ -850,13 +839,15 @@ void create() {
     text("Not Ready", 20, 300);
   }
   //Text for current mode for the swtich
-  text(mode, 20, 350);
+//  text(mode, 20, 350);
+  
+  text(millis() - time0, 20, 350);
 
   //Variable lights
   if (nameSet) {
     fill(255, 0, 0);
-    ellipse(60, 320, 25, 25);
-  } 
+    ellipse(100, 320, 25, 25);
+  }
 
   //Mimic lights
   ellipseMode(CORNER);
