@@ -202,6 +202,11 @@ void draw() {
     }
     if (millis() - countDown > 3000) {
       mode = 4;
+      lightFlash = 0;
+    }
+    running = true;
+    if (jumpStart) {
+      mode = 9;
     }
     break;
   case 4:  //Set lights
@@ -210,8 +215,10 @@ void draw() {
     reactionTime0 = millis();
     recieveData = true;
     nameSet = false;
-    running = true;
     mode = 6;
+    if (jumpStart) {
+      mode = 9;
+    }
     break;
   case 5:
     break;
@@ -243,6 +250,9 @@ void draw() {
       running = false;
       mode = 8;
     }
+    if (jumpStart) {
+      mode = 9;
+    }
     break;
   case 7:
     break;
@@ -259,6 +269,23 @@ void draw() {
     post.addData("jumpStart", postData[8]);
     post.send();
     mode = 0;
+  case 9:
+    if (millis() - lightTimer > 200) {
+      lightTimer = millis();
+      lightFlash++;
+    }
+    if (lightFlash % 2 == 1) {
+      redON();
+    } 
+    else {
+      redOFF();
+    }
+    if (lightFlash > 10) {
+      mode = 1;
+      jumpStart = false;
+      lightFlash = 0;
+    }
+    break;
   }
 
   //  frame.setTitle(int(frameRate) + " fps");
