@@ -1,5 +1,6 @@
 boolean red, green, blue;
-boolean falling_edge_trigger = false;
+boolean falling_edge_trigger17 = false;
+boolean falling_edge_trigger13 = false;
 boolean stringComplete = false;
 String inputString = "";
 
@@ -10,6 +11,7 @@ void setup() {
   pinMode(15, OUTPUT);
   pinMode(16, OUTPUT);
   pinMode(17, INPUT_PULLUP);
+  pinMode(13, INPUT_PULLUP);
   digitalWrite(16, true);
   delay(1000);
 }
@@ -51,14 +53,25 @@ void loop() {
   digitalWrite(16, blue);
 
   if (digitalRead(17) == LOW) {
-    if (falling_edge_trigger == false) {
+    if (falling_edge_trigger17 == false) {
       Serial.println("t 100");
-      falling_edge_trigger = true;
+      falling_edge_trigger17 = true;
       delay(10);
     }
   }
   if (digitalRead(17) == HIGH) {
-    falling_edge_trigger = false;
+    falling_edge_trigger17 = false;
+    delay(10);
+  }  
+  if (digitalRead(13) == LOW) {
+    if (falling_edge_trigger13 == false) {
+      Serial.println("jump");
+      falling_edge_trigger13 = true;
+      delay(10);
+    }
+  }
+  if (digitalRead(13) == HIGH) {
+    falling_edge_trigger13 = false;
     delay(10);
   }
   while (Serial.available()) {
