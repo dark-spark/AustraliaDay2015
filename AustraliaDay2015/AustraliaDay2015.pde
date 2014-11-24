@@ -8,7 +8,7 @@ int mode = 0;
 int time0, time1;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1;
 boolean serialData = false;
-boolean redON, greenON, blueON, whiteON, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
+boolean redON, greenON, blueON, yellowON, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -115,6 +115,7 @@ void setup() {
     myPort = new Serial(this, Serial.list()[0], 9600);
     myPort.bufferUntil('\n');
     myPort.write("redOFF.greenOFF.blueOFF.");
+    myPort.clear();
     serial = true;
   }
 
@@ -155,7 +156,7 @@ void serialEvent (Serial myPort) {
     if (match != null) {
       time1 = millis() - time0;
       time0 = millis();
-      println(inString);
+      print(inString);
       serialData = true;
       inString = trim(inString);
       String[] split = split(inString, ',');
@@ -175,7 +176,7 @@ void draw() {
     redON();
     greenOFF();
     blueOFF();
-    whiteOFF();
+    yellowOFF();
     mode = 1;
     break;
   case 1: //Check for barcode or name clicked
@@ -232,7 +233,7 @@ void draw() {
       if (sectorIndex == 1) {
         String[] split = split(inData[0], " ");
         timeArray[0] = str(time1);
-        timeArray[sectorIndex] = split[1]; //<>//
+        timeArray[sectorIndex] = split[1];
       }
       else {
         timeArray[sectorIndex] = str(time1);
@@ -240,7 +241,7 @@ void draw() {
       serialData = false;
       sectorIndex++;
       greenOFF();
-      whiteON();
+      yellowON();
     }
     if (sectorIndex >= 5) {
       recieveData = false;
@@ -378,26 +379,28 @@ void redOFF() {
     serialData = false;
   }
 }
-void whiteON() {
-  if (!whiteON) {
+
+void yellowON() {
+  if (!yellowON) {
     if (serial) {
-      myPort.write("whiteON.");
+      myPort.write("yellowON.");
       myPort.clear();
     }
-    println("White ON");
-    whiteON = true;
+    println("Yellow ON");
+    yellowON = true;
     serialData = false;
+    myPort.clear();
   }
 }
 
-void whiteOFF() {
-  if (whiteON) {
+void yellowOFF() {
+  if (yellowON) {
     if (serial) {
-      myPort.write("whiteOFF.");
+      myPort.write("yellowOFF.");
       myPort.clear();
     }
-    println("White OFF");
-    whiteON = false;
+    println("Yellow OFF");
+    yellowON = false;
     serialData = false;
   }
 }
@@ -848,11 +851,17 @@ void create() {
     fill(0, 50, 0);
   }
   ellipse(20, 460, 40, 40);
-  if (whiteON) {
+  if (yellowON) {
     fill(255);
   }
   else {
     fill(50);
   }
   ellipse(20, 510, 40, 40);
+}
+
+void delay(int delay)
+{
+  int time = millis();
+  while (millis () - time <= delay);
 }

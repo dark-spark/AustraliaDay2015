@@ -48,12 +48,12 @@ void loop() {
       //      Serial.println("Blue OFF");
       blue = false;
     } 
-    else if (inputString == "whiteON") {
-      //      Serial.println("white ON");
+    else if (inputString == "yellowON") {
+      //      Serial.println("Yellow ON");
       white = true;
     } 
-    else if (inputString == "whiteOFF") {
-      //      Serial.println("White OFF");
+    else if (inputString == "yellowOFF") {
+      //      Serial.println("Yellow OFF");
       white = false;
     }
     stringComplete = false;
