@@ -571,12 +571,14 @@ void draw() {
     break;
   case 8:  //Send Data
     PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
-    post.addData("id", pName);
-    post.addData("var1", sectorTime[0]);
-    post.addData("var2", postData[1]);
-    post.addData("var3", "Hello");
-    post.addData("var4", "Hello");
-    post.addData("var5", "Hello");
+    post.addData("id", postData[0]);
+    post.addData("reactionTime", postData[1]);
+    post.addData("speed", postData[2]);
+    post.addData("et", postData[3]);
+    post.addData("sector1", postData[4]);
+    post.addData("sector2", postData[5]);
+    post.addData("sector3", postData[6]);
+    post.addData("totaltime", postData[7]);
     post.send();
     mode = 0;
   }
