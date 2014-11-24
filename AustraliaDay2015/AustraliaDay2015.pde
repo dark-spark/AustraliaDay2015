@@ -8,11 +8,11 @@ int mode = 0;
 int time0, time1;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1;
 boolean serialData = false;
-boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, lightsFinished;
+boolean redON, redOFF, greenON, greenOFF, blueON, blueOFF, recieveData, running, jumpStart, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
 String sectorTime[] = new String[6];
-String postData[] = new String[8];
+String postData[] = new String[9];
 boolean pNameSet = false;
 String pName;
 int currentPerson;
@@ -114,9 +114,10 @@ void setup() {
   if (Serial.list().length > 0) {
     myPort = new Serial(this, Serial.list()[0], 9600);
     myPort.bufferUntil('\n');
+    myPort.write("redOFF.greenOFF.blueOFF.");
+    serial = true;
   }
 
-  myPort.write("redOFF.greenOFF.blueOFF.");
 
   cp5 = new ControlP5(this);
   l = cp5.addListBox("myList")
@@ -148,11 +149,13 @@ void setup() {
 }
 
 void serialEvent (Serial myPort) {
-  //  println("Got here 1");
   String inString = myPort.readStringUntil('\n');
-  //  println("Got here 2");
   if (inString != null) {
+    String js[] = match(inString, "jump");
     String match[] = match(inString, "t");
+    if (running && js != null) {
+      jumpStart = true;
+    }
     if (match != null) {
       time1 = millis() - time0;
       time0 = millis();
@@ -164,9 +167,328 @@ void serialEvent (Serial myPort) {
         inData[i] = split[i];
       }
     }
-    //  println("Got here 3");
   }
-  //  println("Got here 4");
+}
+
+
+void draw() {
+  create();
+
+  switch(mode) {
+  case 0:  //Barcode not set
+    redON();
+    greenOFF();
+    blueOFF();
+    mode = 1;
+    break;
+  case 1: 
+    break;
+  case 2:  //Barcode set
+    blueON();
+    redOFF();
+    mode = 3;
+    countDown = millis();
+    break;
+  case 3:
+    if (millis() - lightTimer > 500) {
+      lightTimer = millis();
+      lightFlash++;
+    }
+    if (lightFlash % 2 == 1) {
+      blueON();
+    } 
+    else {
+      blueOFF();
+    }
+    if (millis() - countDown > 3000) {
+      mode = 4;
+    }
+    break;
+  case 4:  //Set lights
+    blueOFF();
+    greenON();
+    reactionTime0 = millis();
+    recieveData = true;
+    nameSet = false;
+    running = true;
+    mode = 6;
+    break;
+  case 5:
+    break;
+  case 6:  //Recieve Data
+    if (serialData == true) {
+      if (sectorIndex == 0) {
+        reactionTime1 = millis() - reactionTime0;
+        String[] split = split(inData[0], " ");
+        sectorTime[sectorIndex] = split[1];
+        reactionTime = reactionTime1 - int(sectorTime[0]);
+      } 
+      else {
+        sectorTime[sectorIndex] = str(time1);
+      }
+      serialData = false;
+      sectorIndex++;
+      greenOFF();
+      redON();
+      if (!pNameSet) {
+        pName = name;
+        pNameSet = true;
+      }
+    }
+    if (sectorIndex >= 4) {
+      recieveData = false;
+      sectorIndex = 0;
+      pNameSet = false;
+      formatPostData();
+      running = false;
+      mode = 8;
+    }
+    break;
+  case 7:
+    break;
+  case 8:  //Send Data
+    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
+    post.addData("id", postData[0]);
+    post.addData("reactionTime", postData[1]);
+    post.addData("speed", postData[2]);
+    post.addData("et", postData[3]);
+    post.addData("sector1", postData[4]);
+    post.addData("sector2", postData[5]);
+    post.addData("sector3", postData[6]);
+    post.addData("totalTime", postData[7]);
+    post.addData("jumpStart", postData[8]);
+    post.send();
+    mode = 0;
+  }
+
+  //  frame.setTitle(int(frameRate) + " fps");
+  //  stroke(225);
+  //  fill(225);
+  //  rectMode(CORNER);
+  //  rect(0, 0, 500, 20);
+  //  fill(0);
+  //  textFont(f6);
+  //  text(mouseX, 130, 20);
+  //  text(mouseY, 160, 20);
+  //  text(mouseX - valueX, 190, 20);
+  //  text(mouseY - valueY, 220, 20);
+}
+
+void greenON() {
+  if (!greenON) {
+    if (serial) {
+      myPort.write("greenON.");
+      myPort.clear();
+    }
+    println("Green ON");
+    greenON = true;
+    serialData = false;
+  }
+}
+
+void greenOFF() {
+  if (greenON) {
+    if (serial) {
+      myPort.write("greenOFF.");
+      myPort.clear();
+    }
+    println("Green OFF");
+    greenON = false;
+    serialData = false;
+  }
+}
+void blueON() {
+  if (!blueON) {
+    if (serial) {
+      myPort.write("blueON.");
+      myPort.clear();
+    }
+    println("Blue ON");
+    blueON = true;
+    serialData = false;
+  }
+}
+
+void blueOFF() {
+  if (blueON) {
+    if (serial) {
+      myPort.write("blueOFF.");
+      myPort.clear();
+    }
+    println("Blue OFF");
+    blueON = false;
+    serialData = false;
+  }
+}
+
+void redON() {
+  if (!redON) {
+    if (serial) {
+      myPort.write("redON.");
+      myPort.clear();
+    }
+    println("Red ON");
+    redON = true;
+    serialData = false;
+  }
+}
+
+void redOFF() {
+  if (redON) {
+    if (serial) {
+      myPort.write("redOFF.");
+      myPort.clear();
+    }
+    println("Red OFF");
+    redON = false;
+    serialData = false;
+  }
+}
+
+void keyPressed() {
+
+  valueX = mouseX;
+  valueY = mouseY;
+
+  if (typing.length() > 4) {
+    if (typing.substring(typing.length() - 5).equals("name-")) {
+      typing = "";
+      nameGood = true;
+    }
+  }
+  if (key == '.' && nameGood == true) {
+    player = typing;
+    typing = ""; 
+    nameGood = false;
+    for (int i = 0; i < barcodes.length; i++) {
+      if (player.equals(barcodes[i])) {
+        firstClick = false;
+        int selection = i;
+        println(names[selection]);
+        l.captionLabel().set(names[selection]);
+        data[index][0] = selection;
+        name = names[int(data[index][0])];
+        count = 0;
+        if (firstClick == false) {
+          if (nameSet == false) {
+            //            index++;
+          }
+        }
+        nameSet = true;
+        serialSent = false;
+        mode = 1;
+      }
+    }
+  }
+  else {
+    typing = typing + key;
+  }
+}
+
+void controlEvent(ControlEvent theEvent) {
+
+  if (theEvent.isGroup() && theEvent.name().equals("myList")) {
+    selection = (int)theEvent.group().value();
+    updateName();
+  }
+}
+
+void updateName() {
+  if (firstClick == false) {
+    if (nameSet == false) {
+      //      index++;
+    }
+  }
+  firstClick = false;
+  println(names[selection]);
+  l.captionLabel().set(names[selection]);
+  data[index][0] = selection;
+  name = names[int(data[index][0])];
+  count = 0;
+  nameSet = true;
+}
+
+void mousePressed() {
+  //Check if Mouse is over button and toggle on
+  if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
+    if (sortFastest) {
+      sortFastest = false;
+      c3 = c2;
+    } 
+    else {
+      sortFastest = true;
+      c3 = c1;
+    }
+  }
+  /*
+  if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
+   if (justShoot) {
+   justShoot = false;
+   c4 = c1;
+   } 
+   else {
+   justShoot = true;
+   c4 = c2;
+   }
+   }
+   */
+}
+
+void formatPostData() {
+  float speed = trapDistance / int(sectorTime[0]) * 360;
+  int et = int(sectorTime[0]) + int(sectorTime[1]) + int(sectorTime[2]) + int(sectorTime[3]);
+  int firstSector = int(sectorTime[0]) + int(sectorTime[1]);
+  int totalTime = et + reactionTime;
+  postData[0] = pName;
+  postData[1] = str(reactionTime);
+  postData[2] = str(speed);
+  postData[3] = str(et);
+  postData[4] = str(firstSector);
+  postData[5] = sectorTime[2];
+  postData[6] = sectorTime[3];
+  postData[7] = str(totalTime);
+  if (jumpStart) {
+    postData[8] = "1";
+  }
+  else {
+    postData[8] = "0";
+  }
+}
+
+void setLight(String light, boolean state) {
+
+  myPort.write(light);
+  if (state) {
+    myPort.write("ON.");
+  } 
+  else {
+    myPort.write("OFF.");
+  }
+
+  if (light == "red") {
+    if (state) {
+      redON = true;
+    } 
+    else { 
+      redON = false;
+    }
+  } 
+  else if (light == "blue") {
+    if (state) {
+      blueON = true;
+    } 
+    else { 
+      blueON = false;
+    }
+  } 
+  else if (light == "green") {
+    if (state) {
+      greenON = true;
+    } 
+    else { 
+      greenON = false;
+    }
+  }
 }
 
 void create() {
@@ -492,304 +814,30 @@ void create() {
     fill(255, 0, 0);
     text("Not Ready", 20, 300);
   }
+  //Text for current mode for the swtich
   text(mode, 20, 350);
-}
 
-
-void draw() {
-  create();
-
-  switch(mode) {
-  case 0:  //Barcode not set
-    redON();
-    greenOFF();
-    blueOFF();
-    mode = 1;
-    break;
-  case 1: 
-    break;
-  case 2:  //Barcode set
-    blueON();
-    redOFF();
-    mode = 3;
-    countDown = millis();
-    break;
-  case 3:
-    if (millis() - lightTimer > 500) {
-      lightTimer = millis();
-      lightFlash++;
-    }
-    if (lightFlash % 2 == 1) {
-      blueON();
-    } 
-    else {
-      blueOFF();
-    }
-    if (millis() - countDown > 3000) {
-      mode = 4;
-    }
-    break;
-  case 4:  //Set lights
-    blueOFF();
-    greenON();
-    reactionTime0 = millis();
-    recieveData = true;
-    nameSet = false;
-    mode = 6;
-    break;
-  case 5:
-    break;
-  case 6:  //Recieve Data
-    if (serialData == true) {
-      if (sectorIndex == 0) {
-        reactionTime1 = millis() - reactionTime0;
-        String[] split = split(inData[0], " ");
-        sectorTime[sectorIndex] = split[1];
-        reactionTime = reactionTime1 - int(sectorTime[0]);
-      } 
-      else {
-        sectorTime[sectorIndex] = str(time1);
-      }
-      serialData = false;
-      sectorIndex++;
-      greenOFF();
-      redON();
-      if (!pNameSet) {
-        pName = name;
-        pNameSet = true;
-      }
-    }
-    if (sectorIndex >= 4) {
-      recieveData = false;
-      sectorIndex = 0;
-      pNameSet = false;
-      formatPostData();
-      mode = 8;
-    }
-    break;
-  case 7:
-    break;
-  case 8:  //Send Data
-    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya/services/apexrest/SlideRun");
-    post.addData("id", postData[0]);
-    post.addData("reactionTime", postData[1]);
-    post.addData("speed", postData[2]);
-    post.addData("et", postData[3]);
-    post.addData("sector1", postData[4]);
-    post.addData("sector2", postData[5]);
-    post.addData("sector3", postData[6]);
-    post.addData("totaltime", postData[7]);
-    post.send();
-    mode = 0;
-  }
-
-  //  frame.setTitle(int(frameRate) + " fps");
-  //  stroke(225);
-  //  fill(225);
-  //  rectMode(CORNER);
-  //  rect(0, 0, 500, 20);
-  //  fill(0);
-  //  textFont(f6);
-  //  text(mouseX, 130, 20);
-  //  text(mouseY, 160, 20);
-  //  text(mouseX - valueX, 190, 20);
-  //  text(mouseY - valueY, 220, 20);
-}
-
-void greenON() {
-  if (!greenON) {
-    myPort.write("greenON.");
-    myPort.clear();
-    println("Green ON");
-    greenON = true;
-    serialData = false;
-  }
-}
-
-void greenOFF() {
-  if (greenON) {
-    myPort.write("greenOFF.");
-    myPort.clear();
-    println("Green OFF");
-    greenON = false;
-    serialData = false;
-  }
-}
-void blueON() {
-  if (!blueON) {
-    myPort.write("blueON.");
-    myPort.clear();
-    println("Blue ON");
-    blueON = true;
-    serialData = false;
-  }
-}
-
-void blueOFF() {
-  if (blueON) {
-    myPort.write("blueOFF.");
-    myPort.clear();
-    println("Blue OFF");
-    blueON = false;
-    serialData = false;
-  }
-}
-
-void redON() {
-  if (!redON) {
-    myPort.write("redON.");
-    myPort.clear();
-    println("Red ON");
-    redON = true;
-    serialData = false;
-  }
-}
-
-void redOFF() {
+  //Mimic lights
+  ellipseMode(CORNER);
   if (redON) {
-    myPort.write("redOFF.");
-    myPort.clear();
-    println("Red OFF");
-    redON = false;
-    serialData = false;
+    fill(255, 0, 0);
+  } 
+  else { 
+    fill(50, 0, 0);
   }
-}
-
-void keyPressed() {
-
-  valueX = mouseX;
-  valueY = mouseY;
-
-  if (typing.length() > 4) {
-    if (typing.substring(typing.length() - 5).equals("name-")) {
-      typing = "";
-      nameGood = true;
-    }
-  }
-  if (key == '.' && nameGood == true) {
-    player = typing;
-    typing = ""; 
-    nameGood = false;
-    for (int i = 0; i < barcodes.length; i++) {
-      if (player.equals(barcodes[i])) {
-        firstClick = false;
-        int selection = i;
-        println(names[selection]);
-        l.captionLabel().set(names[selection]);
-        data[index][0] = selection;
-        name = names[int(data[index][0])];
-        count = 0;
-        if (firstClick == false) {
-          if (nameSet == false) {
-            //            index++;
-          }
-        }
-        nameSet = true;
-        serialSent = false;
-        mode = 1;
-      }
-    }
+  ellipse(20, 360, 40, 40);
+  if (blueON) {
+    fill(0, 0, 255);
   }
   else {
-    typing = typing + key;
+    fill(0, 0, 50);
   }
-}
-
-void controlEvent(ControlEvent theEvent) {
-
-  if (theEvent.isGroup() && theEvent.name().equals("myList")) {
-    selection = (int)theEvent.group().value();
-    updateName();
+  ellipse(20, 410, 40, 40);
+  if (greenON) {
+    fill(0, 255, 0);
   }
-}
-
-void updateName() {
-  if (firstClick == false) {
-    if (nameSet == false) {
-      //      index++;
-    }
-  }
-  firstClick = false;
-  println(names[selection]);
-  l.captionLabel().set(names[selection]);
-  data[index][0] = selection;
-  name = names[int(data[index][0])];
-  count = 0;
-  nameSet = true;
-}
-
-void mousePressed() {
-  //Check if Mouse is over button and toggle on
-  if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
-    if (sortFastest) {
-      sortFastest = false;
-      c3 = c2;
-    } 
-    else {
-      sortFastest = true;
-      c3 = c1;
-    }
-  }
-  /*
-  if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
-   if (justShoot) {
-   justShoot = false;
-   c4 = c1;
-   } 
-   else {
-   justShoot = true;
-   c4 = c2;
-   }
-   }
-   */
-}
-
-void formatPostData() {
-  float speed = trapDistance / int(sectorTime[0]) * 360;
-  int et = int(sectorTime[0]) + int(sectorTime[1]) + int(sectorTime[2]) + int(sectorTime[3]);
-  int firstSector = int(sectorTime[0]) + int(sectorTime[1]);
-  int totalTime = et + reactionTime;
-  postData[0] = pName;
-  postData[1] = str(reactionTime);
-  postData[2] = str(speed);
-  postData[3] = str(et);
-  postData[4] = str(firstSector);
-  postData[5] = sectorTime[2];
-  postData[6] = sectorTime[3];
-  postData[7] = str(totalTime);
-}
-void setLight(String light, boolean state) {
-
-  myPort.write(light);
-  if (state) {
-    myPort.write("ON.");
-  } 
   else {
-    myPort.write("OFF.");
+    fill(0, 50, 0);
   }
-
-  if (light == "red") {
-    if (state) {
-      redON = true;
-    } 
-    else { 
-      redON = false;
-    }
-  } 
-  else if (light == "blue") {
-    if (state) {
-      blueON = true;
-    } 
-    else { 
-      blueON = false;
-    }
-  } 
-  else if (light == "green") {
-    if (state) {
-      greenON = true;
-    } 
-    else { 
-      greenON = false;
-    }
-  }
+  ellipse(20, 460, 40, 40);
 }
