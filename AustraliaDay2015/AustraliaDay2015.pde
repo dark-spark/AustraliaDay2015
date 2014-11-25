@@ -1,4 +1,4 @@
-import controlP5.*;  //<>//
+import controlP5.*; 
 import processing.serial.*;
 import http.requests.*;
 
@@ -33,8 +33,8 @@ boolean sect2min = false;
 boolean sect3min = false;
 boolean sect4min = false;
 boolean totalmin = false;
-float min[] = new float[6];
-float max[] = new float[6];
+float min[] = new float[8];
+float max[] = new float[8];
 int sortListPos[] = new int[50];
 boolean firstClick = true;
 String typing = "";
@@ -195,7 +195,7 @@ void draw() {
       pName = name;
       pBarcode = barcode;
       pNameSet = true;
-      data[index][0] = float(barcode);
+//      data[index][0] = float(barcode);
     }
     break;
   case 3: //Flash run up light 
@@ -235,19 +235,20 @@ void draw() {
         reactionTime = millis() - reactionTime0;
         data[index][1] = float(reactionTime);
         count++;
-      }
+      } else {
       if (sectorIndex == 1) {
         String[] split = split(inData[0], " ");
-        timeArray[0] = str(time1);
-        timeArray[sectorIndex] = split[1];
-        data[index][sectorIndex+1] = float(split[1]);
-        count++;
+        timeArray[sectorIndex] = str(time1);
+        data[index][3] = float(time1);
+        timeArray[0] = split[1];
+        data[index][2] = float(split[1]);
+        count = count+2;
       }
       else {
         timeArray[sectorIndex] = str(time1);
-        data[index][sectorIndex+1] = float(time1);
+        data[index][sectorIndex+2] = float(time1);
         count++;
-      }
+      }}
       serialData = false;
       sectorIndex++;
       greenOFF();
@@ -274,7 +275,7 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
-    int t = millis();
+//    int t = millis();
 //    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
 //    post.addData("rider", postData[0]);
 //    post.addData("reactionTime", postData[1]);
@@ -287,7 +288,7 @@ void draw() {
 //    post.addData("totalTime", postData[8]);
 //    post.send();
     mode = 0;
-    r = millis() - t;
+//    r = millis() - t;
     break;
   case 9:  //Jump start
     recieveData = false;
@@ -325,6 +326,352 @@ void draw() {
   //  text(mouseY, 160, 20);
   //  text(mouseX - valueX, 190, 20);
   //  text(mouseY - valueY, 220, 20);
+}
+
+void keyPressed() {
+
+  valueX = mouseX;
+  valueY = mouseY;
+
+  if (typing.length() > 4) {
+    if (typing.substring(typing.length() - 5).equals("name-")) {
+      typing = "";
+      nameGood = true;
+    }
+  }
+  if (key == '.' && nameGood == true) {
+    player = typing;
+    typing = ""; 
+    nameGood = false;
+    for (int i = 0; i < barcodes.length; i++) {
+      if (player.equals(barcodes[i])) {
+        firstClick = false;
+        int selection = i;
+        println(names[selection]);
+        l.captionLabel().set(names[selection]);
+        data[index][0] = selection;
+        name = names[int(data[index][0])];
+        barcode = barcodes[selection];
+        count = 0;
+        nameSet = true;
+      }
+    }
+  }
+  else {
+    typing = typing + key;
+  }
+}
+
+void controlEvent(ControlEvent theEvent) {
+
+  if (theEvent.isGroup() && theEvent.name().equals("myList")) {
+    selection = (int)theEvent.group().value();
+    updateName();
+  }
+}
+
+void updateName() {
+  firstClick = false;
+  println(names[selection]);
+  l.captionLabel().set(names[selection]);
+  data[index][0] = selection;
+  name = names[int(data[index][0])];
+  barcode = barcodes[selection];
+  count = 0;
+  nameSet = true;
+}
+
+
+void formatPostData() {
+  float speed = trapDistance / int(timeArray[0]) * 360;
+  int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
+  int totalTime = et + reactionTime;
+  postData[0] = pBarcode;
+  postData[1] = str(reactionTime + .0);
+  postData[2] = str(speed);
+  postData[3] = str(et + .0);
+  postData[4] = timeArray[1] + .0;
+  postData[5] = timeArray[2] + .0;
+  postData[6] = timeArray[3] + .0;
+  postData[7] = timeArray[4] + .0;
+  postData[8] = str(totalTime + .0);
+}
+
+void create() {
+
+  //Clear screen
+  background(0);
+
+  //Text
+  fill(255);
+  textFont(f1);
+  textAlign(CENTER);
+  text("Current Session", width/2, 50);
+  text("Ranking", width/2, 180);
+
+  //Find Minimum sector time
+  for (int j = 0; j <6; j++) {
+    for (int i = 0; i < index; i++) {
+      if (data[i][j] < min[j]) {
+        min[j] = data[i][j];
+      }
+    }
+  }
+
+  //Find Max sector time
+  for (int j = 0; j <6; j++) {
+    for (int i = 0; i < index; i++) {
+      if (data[i][j] > max[j]) {
+        max[j] = data[i][j];
+      }
+    }
+  }
+
+    //Alternating Bars
+    for (int i = 1; i < index + 1 && i < 25; i = i + 2) {
+      fill(40);
+      stroke(40);
+      rectMode(CENTER);
+      rect(width/2 - 25, (201 + (i * 20)), 690, 19, 7);
+    }
+    rect(width/2 - 25, 114, 690, 24, 7);
+
+    //Text for Current Session
+    fill(255);
+    textFont(f2);
+    textAlign(CENTER);
+    text("Name", width/2 - (115 * 4) + 57, 96);
+    text("Reaction Time", width/2 - (115 * 3) + 57, 96);
+    text("Speed", width/2 - (115 * 2) + 57, 96);
+    text("Sector 1", width/2 - (115 * 1) + 57, 96);
+    text("Sector 2", width/2 - (115 * 0) + 57, 96);
+    text("Sector 3", width/2 + (115 * 1) + 57, 96);
+    text("Sector 4", width/2 + (115 * 2) + 57, 96);
+    text("ET", width/2 + (115 * 3) + 57, 96);
+    text("Total Time", width/2 + (115 * 4) + 57, 96);
+
+    //Text for times and name of current session
+    if (count == 5 && nameSet == false) {
+      for (int i = 1; i < count + 1; i++) {
+        //Check for minimum time 
+        if (data[index -  1][i] <= min[i]) {
+          rectMode(CORNERS);
+          fill(c1);
+          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
+        } 
+        else if (data[index -  1][i] >= max[i]) {
+          rectMode(CORNERS);
+          fill(c2);
+          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
+        } 
+        else {
+          fill(255);
+          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
+        }
+      }
+      fill(255);
+      text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
+    } 
+    else {
+      for (int i = 1; i < count + 1; i++) {
+        //Check for minimum time 
+        if (data[index][i] <= min[i]) {
+          rectMode(CORNERS);
+          fill(c1);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        } 
+        else if (data[index][i] >= max[i]) {
+          rectMode(CORNERS);
+          fill(c2);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        } 
+        else {
+          fill(255);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        }
+      }
+      fill(255);
+      text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
+    }
+
+    //Sort the list for ranking based on total time
+    for (int i = 0; i < index; i++) {
+      sortList[i] = data[i][5];
+    }
+    sortList = sort(sortList);
+
+    //Generate a list of the ranked positions
+    for (int i = 0; i < index; i++) {
+      for (int j = 0; j < index; j++) {
+        if (data[j][5] == sortList[i]) {
+          sortListPos[i] = j;
+        }
+      }
+    }
+
+    //text for times and names of Ranking
+    if (sortFastest) { //For fastest first
+      textFont(f3);
+      for (int i = 0; i < index && i < 24; i++) {
+        fill(255);
+        textAlign(LEFT);
+        text((i + 1) + ".", width/2 - (115 * 4) + 100, 226 + (20 * i));
+        textAlign(CENTER);
+        text(names[int(data[sortListPos[i]][0])], width/2 - (115 * 3) + 57, 226 + (20 * i));
+        for (int j = 1; j < 5 + 1; j++) {
+          //Check for minimum time 
+          if (data[sortListPos[i]][j] <= min[j]) {
+            rectMode(CORNERS);
+            fill(c1);
+            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          }
+          else if (data[sortListPos[i]][j] >= max[j]) {
+            rectMode(CORNERS);
+            fill(c2);
+            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          } 
+          else {
+            fill(255);
+            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          }
+        }
+      }
+      //  println("Got here 5");
+    } 
+    else { //For slowest first
+      textFont(f3);
+      for (int i = 0; i < index && i < 24; i++) {
+        fill(255);
+        textAlign(LEFT);
+        text((i + 1) + ".", width/2 - (115 * 4) + 100, 226 + (20 * i));
+        textAlign(CENTER);
+        text(names[int(data[sortListPos[index-i-1]][0])], width/2 - (115 * 3) + 57, 226 + (20 * i));
+        for (int j = 1; j < 5 + 1; j++) {
+          //Check for minimum time 
+          if (data[sortListPos[index - 1-i]][j] <= min[j]) {
+            rectMode(CORNERS);
+            fill(c1);
+            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          }
+          else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
+            rectMode(CORNERS);
+            fill(c2);
+            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          } 
+          else {
+            fill(255);
+            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
+          }
+        }
+      }
+    }
+  
+
+  //Draw box and text for sort selection
+  rectMode(CORNER);
+  textFont(f3);
+  textAlign(LEFT);
+
+  stroke(255);  
+  fill(255);
+  if (sortFastest) {
+    text("Fastest", boxX+20, boxY+13);
+  } 
+  else {
+    text("Slowest", boxX+20, boxY+13);
+  }
+  fill(c3);
+  stroke(50);
+  rect(boxX, boxY, boxSize, boxSize);
+
+  //Draw text for Ready
+  textFont(f1);
+  textAlign(LEFT);
+  if (count == 0 && nameSet == true) {
+    fill(0, 255, 0);
+    text("Ready", 20, 300);
+  } 
+  else {
+    fill(255, 0, 0);
+    text("Not Ready", 20, 300);
+  }
+  //Text for current mode for the swtich
+  text(count, 20, 350);
+//  text(r, 70, 350);
+//  text(pName, 50, 350);
+
+  //Variable lights
+  if (nameSet) {
+    fill(255, 0, 0);
+//    ellipse(100, 320, 25, 25);
+  }
+
+  //Mimic lights
+  ellipseMode(CORNER);
+  if (redON) {
+    fill(255, 0, 0);
+  } 
+  else { 
+    fill(50, 0, 0);
+  }
+  ellipse(20, 360, 40, 40);
+  if (blueON) {
+    fill(0, 0, 255);
+  }
+  else {
+    fill(0, 0, 50);
+  }
+  ellipse(20, 410, 40, 40);
+  if (greenON) {
+    fill(0, 255, 0);
+  }
+  else {
+    fill(0, 50, 0);
+  }
+  ellipse(20, 460, 40, 40);
+  if (yellowON) {
+    fill(255);
+  }
+  else {
+    fill(50);
+  }
+  ellipse(20, 510, 40, 40);
+}
+
+void mousePressed() {
+  //Check if Mouse is over button and toggle on
+  if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
+    if (sortFastest) {
+      sortFastest = false;
+      c3 = c2;
+    } 
+    else {
+      sortFastest = true;
+      c3 = c1;
+    }
+  }
+  /*
+  if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
+   if (justShoot) {
+   justShoot = false;
+   c4 = c1;
+   } 
+   else {
+   justShoot = true;
+   c4 = c2;
+   }
+   }
+   */
+}
+
+void delay(int delay)
+{
+  int time = millis();
+  while (millis () - time <= delay);
 }
 
 void greenON() {
@@ -421,469 +768,4 @@ void yellowOFF() {
     yellowON = false;
     serialData = false;
   }
-}
-
-void keyPressed() {
-
-  valueX = mouseX;
-  valueY = mouseY;
-
-  if (typing.length() > 4) {
-    if (typing.substring(typing.length() - 5).equals("name-")) {
-      typing = "";
-      nameGood = true;
-    }
-  }
-  if (key == '.' && nameGood == true) {
-    player = typing;
-    typing = ""; 
-    nameGood = false;
-    for (int i = 0; i < barcodes.length; i++) {
-      if (player.equals(barcodes[i])) {
-        firstClick = false;
-        int selection = i;
-        println(names[selection]);
-        l.captionLabel().set(names[selection]);
-        data[index][0] = selection;
-        name = names[int(data[index][0])];
-        barcode = barcodes[selection];
-        count = 0;
-        nameSet = true;
-      }
-    }
-  }
-  else {
-    typing = typing + key;
-  }
-}
-
-void controlEvent(ControlEvent theEvent) {
-
-  if (theEvent.isGroup() && theEvent.name().equals("myList")) {
-    selection = (int)theEvent.group().value();
-    updateName();
-  }
-}
-
-void updateName() {
-  firstClick = false;
-  println(names[selection]);
-  l.captionLabel().set(names[selection]);
-  data[index][0] = selection;
-  name = names[int(data[index][0])];
-  barcode = barcodes[selection];
-  count = 0;
-  nameSet = true;
-}
-
-void mousePressed() {
-  //Check if Mouse is over button and toggle on
-  if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
-    if (sortFastest) {
-      sortFastest = false;
-      c3 = c2;
-    } 
-    else {
-      sortFastest = true;
-      c3 = c1;
-    }
-  }
-  /*
-  if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
-   if (justShoot) {
-   justShoot = false;
-   c4 = c1;
-   } 
-   else {
-   justShoot = true;
-   c4 = c2;
-   }
-   }
-   */
-}
-
-void formatPostData() {
-  float speed = trapDistance / int(timeArray[0]) * 360;
-  int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
-  int totalTime = et + reactionTime;
-  postData[0] = pBarcode;
-  postData[1] = str(reactionTime + .0);
-  postData[2] = str(speed);
-  postData[3] = str(et + .0);
-  postData[4] = timeArray[1] + .0;
-  postData[5] = timeArray[2] + .0;
-  postData[6] = timeArray[3] + .0;
-  postData[7] = timeArray[4] + .0;
-  postData[8] = str(totalTime + .0);
-}
-
-void create() {
-
-  //Clear screen
-  background(0);
-
-  //Text
-  fill(255);
-  textFont(f1);
-  textAlign(CENTER);
-  text("Current Session", width/2, 50);
-  text("Ranking", width/2, 180);
-
-  //Find Minimum sector time
-  for (int j = 0; j <6; j++) {
-    for (int i = 0; i < index; i++) {
-      if (data[i][j] < min[j]) {
-        min[j] = data[i][j];
-      }
-    }
-  }
-
-  //Find Max sector time
-  for (int j = 0; j <6; j++) {
-    for (int i = 0; i < index; i++) {
-      if (data[i][j] > max[j]) {
-        max[j] = data[i][j];
-      }
-    }
-  }
-
-  if (!justShoot) { //////////////////////////////////////////////Normal Stuff//////////////////////////////////////////////////////////
-    //Alternating Bars
-    for (int i = 1; i < index + 1 && i < 25; i = i + 2) {
-      fill(40);
-      stroke(40);
-      rectMode(CENTER);
-      rect(width/2 - 25, (201 + (i * 20)), 690, 19, 7);
-    }
-    rect(width/2 - 25, 114, 690, 24, 7);
-
-    //Text for Current Session
-    fill(255);
-    textFont(f2);
-    textAlign(CENTER);
-    text("Name", width/2 - (115 * 4) + 57, 96);
-    text("Reaction Time", width/2 - (115 * 3) + 57, 96);
-    text("Speed", width/2 - (115 * 2) + 57, 96);
-    text("Sector 1", width/2 - (115 * 1) + 57, 96);
-    text("Sector 2", width/2 - (115 * 0) + 57, 96);
-    text("Sector 3", width/2 + (115 * 1) + 57, 96);
-    text("Sector 4", width/2 + (115 * 2) + 57, 96);
-    text("ET", width/2 + (115 * 3) + 57, 96);
-    text("Total Time", width/2 + (115 * 4) + 57, 96);
-
-    //Text for times and name of current session
-    if (count == 5 && nameSet == false) {
-      for (int i = 1; i < count + 1; i++) {
-        //Check for minimum time 
-        if (data[index -  1][i] <= min[i]) {
-          rectMode(CORNERS);
-          fill(c1);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
-        } 
-        else if (data[index -  1][i] >= max[i]) {
-          rectMode(CORNERS);
-          fill(c2);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
-        } 
-        else {
-          fill(255);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
-        }
-      }
-      fill(255);
-      text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
-    } 
-    else {
-      for (int i = 1; i < count + 1; i++) {
-        //Check for minimum time 
-        if (data[index][i] <= min[i]) {
-          rectMode(CORNERS);
-          fill(c1);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-        } 
-        else if (data[index][i] >= max[i]) {
-          rectMode(CORNERS);
-          fill(c2);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-        } 
-        else {
-          fill(255);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-        }
-      }
-      fill(255);
-      text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
-    }
-
-    //Text for name of current session
-
-    //Sort the list for ranking based on total time
-    for (int i = 0; i < index; i++) {
-      sortList[i] = data[i][5];
-    }
-    sortList = sort(sortList);
-
-    //Generate a list of the ranked positions
-    for (int i = 0; i < index; i++) {
-      for (int j = 0; j < index; j++) {
-        if (data[j][5] == sortList[i]) {
-          sortListPos[i] = j;
-        }
-      }
-    }
-
-    //text for times and names of Ranking
-    if (sortFastest) { //For fastest first
-      textFont(f3);
-      for (int i = 0; i < index && i < 24; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 4) + 100, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[i]][0])], width/2 - (115 * 3) + 57, 226 + (20 * i));
-        for (int j = 1; j < 5 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-          else if (data[sortListPos[i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-        }
-      }
-      //  println("Got here 5");
-    } 
-    else { //For slowest first
-      textFont(f3);
-      for (int i = 0; i < index && i < 24; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 4) + 100, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[index-i-1]][0])], width/2 - (115 * 3) + 57, 226 + (20 * i));
-        for (int j = 1; j < 5 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[index - 1-i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-          else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-        }
-      }
-    }
-  } 
-  else {   ///////////////////////////////////////////Shooting Range Stuff////////////////////////////////////////////////
-    //Alternating Bars
-    for (int i = 1; i < index; i = i + 2) {
-      fill(40);
-      stroke(40);
-      rectMode(CENTER);
-      rect(width/2, (height - 259 - (i * 20)), 230, 19, 7);
-    }
-    rect(width/2, 114, 220, 24, 7);
-
-    //Text for Current Session
-    fill(255);
-    textFont(f2);
-    textAlign(CENTER);
-    text("Name", width/2 - (115 * 1) + 57, 96);
-    text("Time", width/2 - (115 * 0) + 57, 96);
-    //    text("Sector 2", width/2 - (115 * 1) + 57, 96);
-    //    text("Sector 3", width/2 - (115 * 0) + 57, 96);
-    //    text("Sector 4", width/2 + (115 * 1) + 57, 96);
-    //    text("Total Time", width/2 + (115 * 2) + 57, 96);
-
-    //Text for time of current session
-    for (int i = 1; i < 2; i++) {
-      //Check for minimum time 
-      if (data[index][i] <= min[i]) {
-        fill(c1);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (i-1)) + 57, 120);
-      } 
-      else if (data[index][i] >= max[i]) {
-        fill(c2);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (i-1)) + 57, 120);
-      } 
-      else {
-        fill(255);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (i-1)) + 57, 120);
-      }
-    }
-
-    //Text for name of current session
-    fill(255);
-    text(names[int(data[index][0])], width/2 - (115 * 1) + 57, 120);
-
-    //Sort the list for ranking based on total time
-    for (int i = 0; i < index; i++) {
-      sortList[i] = data[i][5];
-    }
-    sortList = sort(sortList);
-
-    //Generate a list of the ranked positions
-    for (int i = 0; i < index; i++) {
-      for (int j = 0; j < index; j++) {
-        if (data[j][5] == sortList[i]) {
-          sortListPos[i] = j;
-        }
-      }
-    }
-
-    //text for times and names of Ranking
-    if (sortFastest) { //For fastest first
-      textFont(f3);
-      for (int i = 0; i < index ; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 2) + 128, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[i]][0])], width/2 - (115 * 1) + 57 + 28, 226 + (20 * i));
-        for (int j = 1; j < 1 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (1 - j)) + 57 + 28, 226 + (20 * i));
-          }
-          else if (data[sortListPos[i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (1 - j)) + 57 + 28, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (1 - j)) + 57 + 28, 226 + (20 * i));
-          }
-        }
-      }
-    } 
-    else { //For slowest first
-      textFont(f3);
-      for (int i = 0; i < index ; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 4) + 100, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[index-i-1]][0])], width/2 - (115 * 3) + 57, 226 + (20 * i));
-        for (int j = 1; j < 5 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[index - 1-i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-          else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (3 - j)) + 57, 226 + (20 * i));
-          }
-        }
-      }
-    }
-  }
-
-  //Draw box and text for sort selection
-  rectMode(CORNER);
-  textFont(f3);
-  textAlign(LEFT);
-
-  stroke(255);  
-  fill(255);
-  if (sortFastest) {
-    text("Fastest", boxX+20, boxY+13);
-  } 
-  else {
-    text("Slowest", boxX+20, boxY+13);
-  }
-  fill(c3);
-  stroke(50);
-  rect(boxX, boxY, boxSize, boxSize);
-
-  //Draw text for Ready
-  textFont(f1);
-  textAlign(LEFT);
-  if (count == 0 && nameSet == true) {
-    fill(0, 255, 0);
-    text("Ready", 20, 300);
-  } 
-  else {
-    fill(255, 0, 0);
-    text("Not Ready", 20, 300);
-  }
-  //Text for current mode for the swtich
-//  text(mode, 20, 350);
-//  text(r, 70, 350);
-//  text(pName, 50, 350);
-
-  //Variable lights
-  if (nameSet) {
-    fill(255, 0, 0);
-//    ellipse(100, 320, 25, 25);
-  }
-
-  //Mimic lights
-  ellipseMode(CORNER);
-  if (redON) {
-    fill(255, 0, 0);
-  } 
-  else { 
-    fill(50, 0, 0);
-  }
-  ellipse(20, 360, 40, 40);
-  if (blueON) {
-    fill(0, 0, 255);
-  }
-  else {
-    fill(0, 0, 50);
-  }
-  ellipse(20, 410, 40, 40);
-  if (greenON) {
-    fill(0, 255, 0);
-  }
-  else {
-    fill(0, 50, 0);
-  }
-  ellipse(20, 460, 40, 40);
-  if (yellowON) {
-    fill(255);
-  }
-  else {
-    fill(50);
-  }
-  ellipse(20, 510, 40, 40);
-}
-
-void delay(int delay)
-{
-  int time = millis();
-  while (millis () - time <= delay);
 }
