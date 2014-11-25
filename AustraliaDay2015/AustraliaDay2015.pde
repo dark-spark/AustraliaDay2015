@@ -241,10 +241,12 @@ void draw() {
         timeArray[0] = str(time1);
         timeArray[sectorIndex] = split[1];
         data[index][sectorIndex+1] = float(split[1]);
+        count++;
       }
       else {
         timeArray[sectorIndex] = str(time1);
         data[index][sectorIndex+1] = float(time1);
+        count++;
       }
       serialData = false;
       sectorIndex++;
@@ -273,17 +275,17 @@ void draw() {
     break;
   case 8:  //Send Data
     int t = millis();
-    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
-    post.addData("rider", postData[0]);
-    post.addData("reactionTime", postData[1]);
-    post.addData("speed", postData[2]);
-    post.addData("et", postData[3]);
-    post.addData("sector1", postData[4]);
-    post.addData("sector2", postData[5]);
-    post.addData("sector3", postData[6]);
-    post.addData("sector4", postData[7]);
-    post.addData("totalTime", postData[8]);
-    post.send();
+//    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
+//    post.addData("rider", postData[0]);
+//    post.addData("reactionTime", postData[1]);
+//    post.addData("speed", postData[2]);
+//    post.addData("et", postData[3]);
+//    post.addData("sector1", postData[4]);
+//    post.addData("sector2", postData[5]);
+//    post.addData("sector3", postData[6]);
+//    post.addData("sector4", postData[7]);
+//    post.addData("totalTime", postData[8]);
+//    post.send();
     mode = 0;
     r = millis() - t;
     break;
@@ -560,13 +562,14 @@ void create() {
     textFont(f2);
     textAlign(CENTER);
     text("Name", width/2 - (115 * 4) + 57, 96);
-    text("Reaction Time", width/2 - (115 *3) + 57, 96);
-    text("Sector 1", width/2 - (115 * 2) + 57, 96);
-    text("Sector 2", width/2 - (115 * 1) + 57, 96);
-    text("Sector 3", width/2 - (115 * 0) + 57, 96);
-    text("Sector 4", width/2 + (115 * 1) + 57, 96);
-    text("ET", width/2 + (115 * 2) + 57, 96);
-    text("Total Time", width/2 + (115 * 3) + 57, 96);
+    text("Reaction Time", width/2 - (115 * 3) + 57, 96);
+    text("Speed", width/2 - (115 * 2) + 57, 96);
+    text("Sector 1", width/2 - (115 * 1) + 57, 96);
+    text("Sector 2", width/2 - (115 * 0) + 57, 96);
+    text("Sector 3", width/2 + (115 * 1) + 57, 96);
+    text("Sector 4", width/2 + (115 * 2) + 57, 96);
+    text("ET", width/2 + (115 * 3) + 57, 96);
+    text("Total Time", width/2 + (115 * 4) + 57, 96);
 
     //Text for times and name of current session
     if (count == 5 && nameSet == false) {
@@ -596,16 +599,16 @@ void create() {
         if (data[index][i] <= min[i]) {
           rectMode(CORNERS);
           fill(c1);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (3 - i)) + 57, 120);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
         } 
         else if (data[index][i] >= max[i]) {
           rectMode(CORNERS);
           fill(c2);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (3 - i)) + 57, 120);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
         } 
         else {
           fill(255);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (3 - i)) + 57, 120);
+          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
         }
       }
       fill(255);
@@ -837,8 +840,8 @@ void create() {
     text("Not Ready", 20, 300);
   }
   //Text for current mode for the swtich
-  text(mode, 20, 350);
-  text(r, 70, 350);
+//  text(mode, 20, 350);
+//  text(r, 70, 350);
 //  text(pName, 50, 350);
 
   //Variable lights
