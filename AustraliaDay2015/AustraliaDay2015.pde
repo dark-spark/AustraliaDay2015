@@ -195,6 +195,7 @@ void draw() {
       pName = name;
       pBarcode = barcode;
       pNameSet = true;
+      data[index][0] = float(barcode);
     }
     break;
   case 3: //Flash run up light 
@@ -232,14 +233,18 @@ void draw() {
     if (serialData) {
       if (sectorIndex == 0) {
         reactionTime = millis() - reactionTime0;
+        data[index][1] = float(reactionTime);
+        count++;
       }
       if (sectorIndex == 1) {
         String[] split = split(inData[0], " ");
         timeArray[0] = str(time1);
         timeArray[sectorIndex] = split[1];
+        data[index][sectorIndex+1] = float(split[1]);
       }
       else {
         timeArray[sectorIndex] = str(time1);
+        data[index][sectorIndex+1] = float(time1);
       }
       serialData = false;
       sectorIndex++;
@@ -256,6 +261,8 @@ void draw() {
       greenOFF();
       blueOFF();
       yellowOFF();
+      index++;
+      count++;
       mode = 8;
     }
     if (jumpStart) {
