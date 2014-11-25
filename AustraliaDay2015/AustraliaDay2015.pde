@@ -451,7 +451,7 @@ void create() {
     text("Total Time", width/2 + (115 * 4) + 57, 96);
 
     //Text for times and name of current session
-    if (count == 5 && nameSet == false) {
+    if (count == 7 && nameSet == false) {
       for (int i = 1; i < count + 1; i++) {
         //Check for minimum time 
         if (data[index -  1][i] <= min[i]) {
