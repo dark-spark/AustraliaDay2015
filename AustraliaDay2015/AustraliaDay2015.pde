@@ -21,7 +21,7 @@ int currentPerson;
 int count = 0;
 String total;
 String name;
-float data[][] = new float[50][6];
+float data[][] = new float[50][8];
 float sortList[] = new float[50];
 String names[] = new String[50];
 String songs[] = new String[50];
@@ -552,13 +552,14 @@ void create() {
     fill(255);
     textFont(f2);
     textAlign(CENTER);
-    text("Name", width/2 - (115 * 3) + 57, 96);
+    text("Name", width/2 - (115 * 4) + 57, 96);
+    text("Reaction Time", width/2 - (115 *3) + 57, 96);
     text("Sector 1", width/2 - (115 * 2) + 57, 96);
     text("Sector 2", width/2 - (115 * 1) + 57, 96);
-
     text("Sector 3", width/2 - (115 * 0) + 57, 96);
     text("Sector 4", width/2 + (115 * 1) + 57, 96);
-    text("Total Time", width/2 + (115 * 2) + 57, 96);
+    text("ET", width/2 + (115 * 2) + 57, 96);
+    text("Total Time", width/2 + (115 * 3) + 57, 96);
 
     //Text for times and name of current session
     if (count == 5 && nameSet == false) {
@@ -580,7 +581,7 @@ void create() {
         }
       }
       fill(255);
-      text(names[int(data[index - 1][0])], width/2 - (115 * 3) + 57, 120);
+      text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
     } 
     else {
       for (int i = 1; i < count + 1; i++) {
@@ -601,7 +602,7 @@ void create() {
         }
       }
       fill(255);
-      text(names[int(data[index][0])], width/2 - (115 * 3) + 57, 120);
+      text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
     }
 
     //Text for name of current session
