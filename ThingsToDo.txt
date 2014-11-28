@@ -1,0 +1,6 @@
+Things to do
+
+1. Create a fill data method. for loop filling with values calculated for postData
+2. Fix postData filling with extra 0's
+3. Fix save to file. And put in method. 
+4. 
