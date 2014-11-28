@@ -1,6 +1,14 @@
-import controlP5.*; 
+import controlP5.*;  //<>//
 import processing.serial.*;
-import http.requests.*;
+////import http.requests.*;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.client.methods.HttpGet;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.impl.client.HttpClientBuilder;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.HttpStatus;
+//import org.apache.http.util.EntityUtils;
+//import org.apache.http.client.ClientProtocolException;
 
 Serial myPort;        
 String inData[] = new String[1];
@@ -21,7 +29,7 @@ int currentPerson;
 int count = 0;
 String total;
 String name;
-float data[][] = new float[50][8];
+float data[][] = new float[50][9];
 float sortList[] = new float[50];
 String names[] = new String[50];
 String songs[] = new String[50];
@@ -33,8 +41,8 @@ boolean sect2min = false;
 boolean sect3min = false;
 boolean sect4min = false;
 boolean totalmin = false;
-float min[] = new float[8];
-float max[] = new float[8];
+float min[] = new float[9];
+float max[] = new float[9];
 int sortListPos[] = new int[50];
 boolean firstClick = true;
 String typing = "";
@@ -54,7 +62,7 @@ int valueY = 0;
 boolean sortFastest = true;
 boolean justShoot = false;
 color c2 = color(255, 220, 0), c1 = color(255, 50, 255), c3 = c1, c4 = c1;
-int boxX = 1000, boxY = 210, boxSize = 15;
+int boxX = 1000, boxY = 20, boxSize = 15;
 int box1X = 1000, box1Y = 230;
 
 float[] list = new float[0];
@@ -148,6 +156,11 @@ void setup() {
   //Fill array for min times
   for (int i = 0; i< 6; i++) {
     min[i] = 1000;
+  }  
+  
+  //Fill array for times times
+  for (int i = 0; i< 6; i++) {
+    timeArray[i] = "1";
   }
 }
 
@@ -195,7 +208,7 @@ void draw() {
       pName = name;
       pBarcode = barcode;
       pNameSet = true;
-//      data[index][0] = float(barcode);
+      //      data[index][0] = float(barcode);
     }
     break;
   case 3: //Flash run up light 
@@ -233,22 +246,20 @@ void draw() {
     if (serialData) {
       if (sectorIndex == 0) {
         reactionTime = millis() - reactionTime0;
-        data[index][1] = float(reactionTime);
         count++;
-      } else {
-      if (sectorIndex == 1) {
-        String[] split = split(inData[0], " ");
-        timeArray[sectorIndex] = str(time1);
-        data[index][3] = float(time1);
-        timeArray[0] = split[1];
-        data[index][2] = float(split[1]);
-        count = count+2;
-      }
+      } 
       else {
-        timeArray[sectorIndex] = str(time1);
-        data[index][sectorIndex+2] = float(time1);
-        count++;
-      }}
+        if (sectorIndex == 1) {
+          String[] split = split(inData[0], " ");
+          timeArray[sectorIndex] = str(time1);
+          timeArray[0] = split[1];
+          count = count+2;
+        }
+        else {
+          timeArray[sectorIndex] = str(time1);
+          count++;
+        }
+      }
       serialData = false;
       sectorIndex++;
       greenOFF();
@@ -258,7 +269,6 @@ void draw() {
       recieveData = false;
       sectorIndex = 0;
       pNameSet = false;
-      formatPostData();
       running = false;
       redON();
       greenOFF();
@@ -271,24 +281,26 @@ void draw() {
     if (jumpStart) {
       mode = 9;
     }
+      formatPostData();
+      fillData();
     break;
   case 7:
     break;
   case 8:  //Send Data
-//    int t = millis();
-//    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
-//    post.addData("rider", postData[0]);
-//    post.addData("reactionTime", postData[1]);
-//    post.addData("speed", postData[2]);
-//    post.addData("et", postData[3]);
-//    post.addData("sector1", postData[4]);
-//    post.addData("sector2", postData[5]);
-//    post.addData("sector3", postData[6]);
-//    post.addData("sector4", postData[7]);
-//    post.addData("totalTime", postData[8]);
-//    post.send();
+    //    int t = millis();
+    //    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
+    //    post.addData("rider", postData[0]);
+    //    post.addData("reactionTime", postData[1]);
+    //    post.addData("speed", postData[2]);
+    //    post.addData("et", postData[3]);
+    //    post.addData("sector1", postData[4]);
+    //    post.addData("sector2", postData[5]);
+    //    post.addData("sector3", postData[6]);
+    //    post.addData("sector4", postData[7]);
+    //    post.addData("totalTime", postData[8]);
+    //    post.send();
     mode = 0;
-//    r = millis() - t;
+    //    r = millis() - t;
     break;
   case 9:  //Jump start
     recieveData = false;
@@ -381,7 +393,6 @@ void updateName() {
   nameSet = true;
 }
 
-
 void formatPostData() {
   float speed = trapDistance / int(timeArray[0]) * 360;
   int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
@@ -389,12 +400,18 @@ void formatPostData() {
   postData[0] = pBarcode;
   postData[1] = str(reactionTime + .0);
   postData[2] = str(speed);
-  postData[3] = str(et + .0);
-  postData[4] = timeArray[1] + .0;
-  postData[5] = timeArray[2] + .0;
-  postData[6] = timeArray[3] + .0;
-  postData[7] = timeArray[4] + .0;
+  postData[3] = str(float(timeArray[1]));
+  postData[4] = str(float(timeArray[2]));
+  postData[5] = str(float(timeArray[3]));
+  postData[6] = str(float(timeArray[4]));
+  postData[7] = str(et + .0);
   postData[8] = str(totalTime + .0);
+}
+
+void fillData() {
+  for (int i = 0; i < 9; i++) {
+    data[index][i] = float(postData[i]);
+  }
 }
 
 void create() {
@@ -427,149 +444,149 @@ void create() {
     }
   }
 
-    //Alternating Bars
-    for (int i = 1; i < index + 1 && i < 25; i = i + 2) {
-      fill(40);
-      stroke(40);
-      rectMode(CENTER);
-      rect(width/2 - 25, (201 + (i * 20)), 690, 19, 7);
-    }
-    rect(width/2 - 25, 114, 690, 24, 7);
+  //Alternating Bars
+  for (int i = 1; i < index + 1 && i < 25; i = i + 2) {
+    fill(40);
+    stroke(40);
+    rectMode(CENTER);
+    rect(width/2 - 25, (201 + (i * 20)), 690, 19, 7);
+  }
+  rect(width/2 - 25, 114, 690, 24, 7);
 
-    //Text for Current Session
+  //Text for Current Session
+  fill(255);
+  textFont(f2);
+  textAlign(CENTER);
+  text("Name", width/2 - (115 * 4) + 57, 96);
+  text("Reaction Time", width/2 - (115 * 3) + 57, 96);
+  text("Speed", width/2 - (115 * 2) + 57, 96);
+  text("Sector 1", width/2 - (115 * 1) + 57, 96);
+  text("Sector 2", width/2 - (115 * 0) + 57, 96);
+  text("Sector 3", width/2 + (115 * 1) + 57, 96);
+  text("Sector 4", width/2 + (115 * 2) + 57, 96);
+  text("ET", width/2 + (115 * 3) + 57, 96);
+  text("Total Time", width/2 + (115 * 4) + 57, 96);
+
+  //Text for times and name of current session
+  if (count == 7 && nameSet == false) {
+    for (int i = 1; i < count + 2; i++) {
+      //Check for minimum time 
+      if (data[index -  1][i] <= min[i]) {
+        rectMode(CORNERS);
+        fill(c1);
+        text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      } 
+      else if (data[index -  1][i] >= max[i]) {
+        rectMode(CORNERS);
+        fill(c2);
+        text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      } 
+      else {
+        fill(255);
+        text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      }
+    }
     fill(255);
-    textFont(f2);
-    textAlign(CENTER);
-    text("Name", width/2 - (115 * 4) + 57, 96);
-    text("Reaction Time", width/2 - (115 * 3) + 57, 96);
-    text("Speed", width/2 - (115 * 2) + 57, 96);
-    text("Sector 1", width/2 - (115 * 1) + 57, 96);
-    text("Sector 2", width/2 - (115 * 0) + 57, 96);
-    text("Sector 3", width/2 + (115 * 1) + 57, 96);
-    text("Sector 4", width/2 + (115 * 2) + 57, 96);
-    text("ET", width/2 + (115 * 3) + 57, 96);
-    text("Total Time", width/2 + (115 * 4) + 57, 96);
+    text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
+  } 
+  else {
+    for (int i = 1; i < count + 1; i++) {
+      //Check for minimum time 
+      if (data[index][i] <= min[i]) {
+        rectMode(CORNERS);
+        fill(c1);
+        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      } 
+      else if (data[index][i] >= max[i]) {
+        rectMode(CORNERS);
+        fill(c2);
+        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      } 
+      else {
+        fill(255);
+        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+      }
+    }
+    fill(255);
+    text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
+  }
 
-    //Text for times and name of current session
-    if (count == 7 && nameSet == false) {
-      for (int i = 1; i < count + 1; i++) {
+  //Sort the list for ranking based on total time
+  for (int i = 0; i < index; i++) {
+    sortList[i] = data[i][5];
+  }
+  sortList = sort(sortList);
+
+  //Generate a list of the ranked positions
+  for (int i = 0; i < index; i++) {
+    for (int j = 0; j < index; j++) {
+      if (data[j][5] == sortList[i]) {
+        sortListPos[i] = j;
+      }
+    }
+  }
+
+  //text for times and names of Ranking
+  if (sortFastest) { //For fastest first
+    textFont(f3);
+    for (int i = 0; i < index && i < 24; i++) {
+      fill(255);
+      textAlign(LEFT);
+      text((i + 1) + ".", width/2 - (115 * 5) + 100, 226 + (20 * i));
+      textAlign(CENTER);
+      text(names[int(data[sortListPos[i]][0])], width/2 - (115 * 4) + 57, 226 + (20 * i));
+      for (int j = 1; j < 8 + 1; j++) {
         //Check for minimum time 
-        if (data[index -  1][i] <= min[i]) {
+        if (data[sortListPos[i]][j] <= min[j]) {
           rectMode(CORNERS);
           fill(c1);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
-        } 
-        else if (data[index -  1][i] >= max[i]) {
+          //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+          text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
+        }
+        else if (data[sortListPos[i]][j] >= max[j]) {
           rectMode(CORNERS);
           fill(c2);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
+          //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+          text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         } 
         else {
           fill(255);
-          text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (3 - i)) + 57, 120);
+          text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         }
       }
+    }
+    //  println("Got here 5");
+  } 
+  else { //For slowest first
+    textFont(f3);
+    for (int i = 0; i < index && i < 24; i++) {
       fill(255);
-      text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
-    } 
-    else {
-      for (int i = 1; i < count + 1; i++) {
+      textAlign(LEFT);
+      text((i + 1) + ".", width/2 - (115 * 5) + 100, 226 + (20 * i));
+      textAlign(CENTER);
+      text(names[int(data[sortListPos[index-i-1]][0])], width/2 - (115 * 4) + 57, 226 + (20 * i));
+      for (int j = 1; j < 8 + 1; j++) {
         //Check for minimum time 
-        if (data[index][i] <= min[i]) {
+        if (data[sortListPos[index - 1-i]][j] <= min[j]) {
           rectMode(CORNERS);
           fill(c1);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-        } 
-        else if (data[index][i] >= max[i]) {
+          //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+          text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
+        }
+        else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
           rectMode(CORNERS);
           fill(c2);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+          //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
+          text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         } 
         else {
           fill(255);
-          text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+          text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         }
       }
-      fill(255);
-      text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
     }
+  }
 
-    //Sort the list for ranking based on total time
-    for (int i = 0; i < index; i++) {
-      sortList[i] = data[i][5];
-    }
-    sortList = sort(sortList);
-
-    //Generate a list of the ranked positions
-    for (int i = 0; i < index; i++) {
-      for (int j = 0; j < index; j++) {
-        if (data[j][5] == sortList[i]) {
-          sortListPos[i] = j;
-        }
-      }
-    }
-
-    //text for times and names of Ranking
-    if (sortFastest) { //For fastest first
-      textFont(f3);
-      for (int i = 0; i < index && i < 24; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 5) + 100, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[i]][0])], width/2 - (115 * 4) + 57, 226 + (20 * i));
-        for (int j = 1; j < 5 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          }
-          else if (data[sortListPos[i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          }
-        }
-      }
-      //  println("Got here 5");
-    } 
-    else { //For slowest first
-      textFont(f3);
-      for (int i = 0; i < index && i < 24; i++) {
-        fill(255);
-        textAlign(LEFT);
-        text((i + 1) + ".", width/2 - (115 * 5) + 100, 226 + (20 * i));
-        textAlign(CENTER);
-        text(names[int(data[sortListPos[index-i-1]][0])], width/2 - (115 * 4) + 57, 226 + (20 * i));
-        for (int j = 1; j < 5 + 1; j++) {
-          //Check for minimum time 
-          if (data[sortListPos[index - 1-i]][j] <= min[j]) {
-            rectMode(CORNERS);
-            fill(c1);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          }
-          else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
-            rectMode(CORNERS);
-            fill(c2);
-            //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          } 
-          else {
-            fill(255);
-            text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-          }
-        }
-      }
-    }
-  
 
   //Draw box and text for sort selection
   rectMode(CORNER);
@@ -601,13 +618,13 @@ void create() {
   }
   //Text for current mode for the swtich
   text(count, 20, 350);
-//  text(r, 70, 350);
-//  text(pName, 50, 350);
+  //  text(r, 70, 350);
+  //  text(pName, 50, 350);
 
   //Variable lights
   if (nameSet) {
     fill(255, 0, 0);
-//    ellipse(100, 320, 25, 25);
+    //    ellipse(100, 320, 25, 25);
   }
 
   //Mimic lights

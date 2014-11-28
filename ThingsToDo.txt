@@ -4,3 +4,4 @@ Things to do
 2. Fix postData filling with extra 0's
 3. Fix save to file. And put in method. 
 4. Finish authorised http connection integration and test.
+5. Fix names displaying wrong. 
