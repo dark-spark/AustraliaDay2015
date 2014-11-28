@@ -83,7 +83,7 @@ void setup() {
   String loadlist[] = loadStrings("list.txt");
   for (int i = 0; i < loadlist.length; i++) {
     String[] split = split(loadlist[i], ',');
-    for (int j = 0; j < 6; j++) {
+    for (int j = 0; j < 9; j++) {
       data[i][j] = float(split[j]);
     }
     index++;
@@ -154,12 +154,12 @@ void setup() {
   }
 
   //Fill array for min times
-  for (int i = 0; i< 6; i++) {
-    min[i] = 1000;
+  for (int i = 0; i < 9; i++) {
+    min[i] = 2147483647;
   }  
   
   //Fill array for times times
-  for (int i = 0; i< 6; i++) {
+  for (int i = 0; i < 6; i++) {
     timeArray[i] = "1";
   }
 }
@@ -270,19 +270,19 @@ void draw() {
       sectorIndex = 0;
       pNameSet = false;
       running = false;
+      formatPostData();
+      fillData();
       redON();
       greenOFF();
       blueOFF();
       yellowOFF();
       index++;
-      count++;
+      count = 0;
       mode = 8;
     }
     if (jumpStart) {
       mode = 9;
     }
-      formatPostData();
-      fillData();
     break;
   case 7:
     break;
@@ -389,7 +389,6 @@ void updateName() {
   data[index][0] = selection;
   name = names[int(data[index][0])];
   barcode = barcodes[selection];
-  count = 0;
   nameSet = true;
 }
 
@@ -427,7 +426,7 @@ void create() {
   text("Ranking", width/2, 180);
 
   //Find Minimum sector time
-  for (int j = 0; j <6; j++) {
+  for (int j = 0; j < 9; j++) {
     for (int i = 0; i < index; i++) {
       if (data[i][j] < min[j]) {
         min[j] = data[i][j];
@@ -436,7 +435,7 @@ void create() {
   }
 
   //Find Max sector time
-  for (int j = 0; j <6; j++) {
+  for (int j = 0; j < 9; j++) {
     for (int i = 0; i < index; i++) {
       if (data[i][j] > max[j]) {
         max[j] = data[i][j];
@@ -495,17 +494,18 @@ void create() {
       if (data[index][i] <= min[i]) {
         rectMode(CORNERS);
         fill(c1);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       } 
       else if (data[index][i] >= max[i]) {
         rectMode(CORNERS);
         fill(c2);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       } 
       else {
         fill(255);
-        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       }
+      text("Hit", width/2 - (115 * (4 - i)) + 57, 120);
     }
     fill(255);
     text(names[int(data[index][0])], width/2 - (115 * 4) + 57, 120);
@@ -513,14 +513,14 @@ void create() {
 
   //Sort the list for ranking based on total time
   for (int i = 0; i < index; i++) {
-    sortList[i] = data[i][5];
+    sortList[i] = data[i][8];
   }
   sortList = sort(sortList);
 
   //Generate a list of the ranked positions
   for (int i = 0; i < index; i++) {
     for (int j = 0; j < index; j++) {
-      if (data[j][5] == sortList[i]) {
+      if (data[j][8] == sortList[i]) {
         sortListPos[i] = j;
       }
     }
@@ -617,7 +617,7 @@ void create() {
     text("Not Ready", 20, 300);
   }
   //Text for current mode for the swtich
-  text(count, 20, 350);
+  text(mode, 20, 350);
   //  text(r, 70, 350);
   //  text(pName, 50, 350);
 
@@ -697,7 +697,7 @@ void greenON() {
       myPort.write("greenON.");
       myPort.clear();
     }
-    println("Green ON");
+//    println("Green ON");
     greenON = true;
     serialData = false;
   }
@@ -709,7 +709,7 @@ void greenOFF() {
       myPort.write("greenOFF.");
       myPort.clear();
     }
-    println("Green OFF");
+//    println("Green OFF");
     greenON = false;
     serialData = false;
   }
@@ -720,7 +720,7 @@ void blueON() {
       myPort.write("blueON.");
       myPort.clear();
     }
-    println("Blue ON");
+//    println("Blue ON");
     blueON = true;
     serialData = false;
   }
@@ -732,7 +732,7 @@ void blueOFF() {
       myPort.write("blueOFF.");
       myPort.clear();
     }
-    println("Blue OFF");
+//    println("Blue OFF");
     blueON = false;
     serialData = false;
   }
@@ -744,7 +744,7 @@ void redON() {
       myPort.write("redON.");
       myPort.clear();
     }
-    println("Red ON");
+//    println("Red ON");
     redON = true;
     serialData = false;
   }
@@ -756,7 +756,7 @@ void redOFF() {
       myPort.write("redOFF.");
       myPort.clear();
     }
-    println("Red OFF");
+//    println("Red OFF");
     redON = false;
     serialData = false;
   }
@@ -768,7 +768,7 @@ void yellowON() {
       myPort.write("yellowON.");
       myPort.clear();
     }
-    println("Yellow ON");
+//    println("Yellow ON");
     yellowON = true;
     serialData = false;
     myPort.clear();
@@ -781,7 +781,7 @@ void yellowOFF() {
       myPort.write("yellowOFF.");
       myPort.clear();
     }
-    println("Yellow OFF");
+//    println("Yellow OFF");
     yellowON = false;
     serialData = false;
   }
