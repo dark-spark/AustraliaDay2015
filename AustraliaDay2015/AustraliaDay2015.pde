@@ -1,16 +1,17 @@
 import controlP5.*;  //<>//
 import processing.serial.*;
-////import http.requests.*;
-//import org.apache.http.client.methods.HttpPost;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.impl.client.HttpClientBuilder;
-//import org.apache.http.HttpResponse;
-//import org.apache.http.HttpStatus;
-//import org.apache.http.util.EntityUtils;
-//import org.apache.http.client.ClientProtocolException;
+//import http.requests.*;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.client.ClientProtocolException;
 
 Serial myPort;        
+int arrayLength = 50;
 String inData[] = new String[1];
 int mode = 0;
 int time0, time1;
@@ -29,12 +30,12 @@ int currentPerson;
 int count = 0;
 String total;
 String name;
-float data[][] = new float[50][9];
-float sortList[] = new float[50];
-String names[] = new String[50];
-String songs[] = new String[50];
-String barcodes[] = new String[50];
-float srData[][] = new float[150][2];
+float data[][] = new float[arrayLength][9];
+float sortList[] = new float[arrayLength];
+String names[] = new String[arrayLength];
+String songs[] = new String[arrayLength];
+String barcodes[] = new String[arrayLength];
+float srData[][] = new float[arrayLength][2];
 boolean nameSet = false;
 boolean sect1min = false;
 boolean sect2min = false;
@@ -43,7 +44,7 @@ boolean sect4min = false;
 boolean totalmin = false;
 float min[] = new float[9];
 float max[] = new float[9];
-int sortListPos[] = new int[50];
+int sortListPos[] = new int[arrayLength];
 boolean firstClick = true;
 String typing = "";
 String player = "";
@@ -74,6 +75,10 @@ int SgraphH = 38; //Speed graph scale
 int ETgraphH = 1500000; //ET graph scale
 int totalLength = 12000;
 float averageSpeed;
+
+boolean salesForce = false;
+int[] insertTime = new int[arrayLength];
+String[] accessDetails = new String[2];
 
 void setup() {
   size(1280, 700);
@@ -120,6 +125,7 @@ void setup() {
   f5 = createFont("Arial Unicode MS", 15);
   f6 = createFont("Arial Unicode MS", 12);
 
+  //Setup serial communication
   println(Serial.list());
   if (Serial.list().length > 0) {
     myPort = new Serial(this, Serial.list()[0], 9600);
@@ -129,7 +135,7 @@ void setup() {
     serial = true;
   }
 
-
+  //Set up listbox
   cp5 = new ControlP5(this);
   l = cp5.addListBox("myList")
     .setPosition(6, 21)
@@ -157,10 +163,24 @@ void setup() {
   for (int i = 0; i < 9; i++) {
     min[i] = 2147483647;
   }  
-  
+
   //Fill array for times times
   for (int i = 0; i < 6; i++) {
     timeArray[i] = "1";
+  }
+
+  if (salesForce) {
+
+    String[] salesforceLoginDetails = new String[6];
+
+    salesforceLoginDetails[0] = "mick.wheelz@gmail.com"; //username
+    salesforceLoginDetails[1] = "InItial89ULi8HaMXOIx418iTkHK6gmTPT"; //password and token
+    salesforceLoginDetails[2] = "https://login.salesforce.com"; //login url
+    salesforceLoginDetails[3] ="/services/oauth2/token?grant_type=password"; // grant type
+    salesforceLoginDetails[4] = "3MVG9Y6d_Btp4xp5LLJdvxJXv2qYyLbJtrC13AyKJVy1l9h9xq2eQzIGhC5IaQiCOnt0Btssf1NUL1BckOZad"; //client id
+    salesforceLoginDetails[5] = "3875746611375330421"; //client secret 
+
+    accessDetails = loginSalesforce(salesforceLoginDetails);
   }
 }
 
@@ -287,20 +307,27 @@ void draw() {
   case 7:
     break;
   case 8:  //Send Data
-    //    int t = millis();
-    //    PostRequest post = new PostRequest("https://mickwheelz2-developer-edition.ap1.force.com/straya");
-    //    post.addData("rider", postData[0]);
-    //    post.addData("reactionTime", postData[1]);
-    //    post.addData("speed", postData[2]);
-    //    post.addData("et", postData[3]);
-    //    post.addData("sector1", postData[4]);
-    //    post.addData("sector2", postData[5]);
-    //    post.addData("sector3", postData[6]);
-    //    post.addData("sector4", postData[7]);
-    //    post.addData("totalTime", postData[8]);
-    //    post.send();
+    if (salesForce) {
+      JSONObject rideTest;    
+
+      rideTest = new JSONObject();
+
+      rideTest.setString("Barcode__c", postData[0]);
+      rideTest.setFloat("Reaction_Time__c", float(postData[1]));
+      rideTest.setFloat("Speed__c", float(postData[2]));
+      rideTest.setFloat("ET__c", float(postData[3]));
+      rideTest.setFloat("Sector_1__c", float(postData[4]));
+      rideTest.setFloat("Sector_2__c", float(postData[5] ));
+      rideTest.setFloat("Sector_3__c", float(postData[6] ));
+      rideTest.setFloat("Sector_4__c", float(postData[7]));
+      rideTest.setFloat("Total_Time__c", float(postData[8]));
+
+      int t = millis();
+      Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
+      int r = millis() - t;
+    }
+
     mode = 0;
-    //    r = millis() - t;
     break;
   case 9:  //Jump start
     recieveData = false;
@@ -494,16 +521,16 @@ void create() {
       if (data[index][i] <= min[i]) {
         rectMode(CORNERS);
         fill(c1);
-//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       } 
       else if (data[index][i] >= max[i]) {
         rectMode(CORNERS);
         fill(c2);
-//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       } 
       else {
         fill(255);
-//        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
+        //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       }
       text("Hit", width/2 - (115 * (4 - i)) + 57, 120);
     }
@@ -697,7 +724,7 @@ void greenON() {
       myPort.write("greenON.");
       myPort.clear();
     }
-//    println("Green ON");
+    //    println("Green ON");
     greenON = true;
     serialData = false;
   }
@@ -709,7 +736,7 @@ void greenOFF() {
       myPort.write("greenOFF.");
       myPort.clear();
     }
-//    println("Green OFF");
+    //    println("Green OFF");
     greenON = false;
     serialData = false;
   }
@@ -720,7 +747,7 @@ void blueON() {
       myPort.write("blueON.");
       myPort.clear();
     }
-//    println("Blue ON");
+    //    println("Blue ON");
     blueON = true;
     serialData = false;
   }
@@ -732,7 +759,7 @@ void blueOFF() {
       myPort.write("blueOFF.");
       myPort.clear();
     }
-//    println("Blue OFF");
+    //    println("Blue OFF");
     blueON = false;
     serialData = false;
   }
@@ -744,7 +771,7 @@ void redON() {
       myPort.write("redON.");
       myPort.clear();
     }
-//    println("Red ON");
+    //    println("Red ON");
     redON = true;
     serialData = false;
   }
@@ -756,7 +783,7 @@ void redOFF() {
       myPort.write("redOFF.");
       myPort.clear();
     }
-//    println("Red OFF");
+    //    println("Red OFF");
     redON = false;
     serialData = false;
   }
@@ -768,7 +795,7 @@ void yellowON() {
       myPort.write("yellowON.");
       myPort.clear();
     }
-//    println("Yellow ON");
+    //    println("Yellow ON");
     yellowON = true;
     serialData = false;
     myPort.clear();
@@ -781,7 +808,7 @@ void yellowOFF() {
       myPort.write("yellowOFF.");
       myPort.clear();
     }
-//    println("Yellow OFF");
+    //    println("Yellow OFF");
     yellowON = false;
     serialData = false;
   }

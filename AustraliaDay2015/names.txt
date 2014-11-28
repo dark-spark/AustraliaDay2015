@@ -1,6 +1,6 @@
 Symesy,0000
 Austen,0001
-Dick Floss Sucker,0002
+Dick,0002
 Mugen,0003
 Steven,0004
 Caesar,0005
