@@ -4,6 +4,7 @@ int count = 5;
 int led = 11;
 boolean triggered = false;
 int timeBetweenRisingEdge = 1000;
+int pulseTime = 100;
 
 void setup() {                
   pinMode(in, INPUT_PULLUP);
@@ -19,10 +20,10 @@ void loop() {
     for(int i = 0; i < count; i++) {
       digitalWrite(out, HIGH);
       digitalWrite(led, HIGH);
-      delay(timeBetweenRisingEdge/2);
+      delay(pulseTime);
       digitalWrite(out, LOW);    
       digitalWrite(led, LOW);
-      delay(timeBetweenRisingEdge/2);
+      delay(timeBetweenRisingEdge-pulseTime);
     }
     triggered = false;
   }
