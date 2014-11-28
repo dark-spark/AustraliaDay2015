@@ -62,7 +62,7 @@ void loop() {
   digitalWrite(14, red);
   digitalWrite(15, green);
   digitalWrite(16, blue);
-  //  digitalWrite(12, white);
+  digitalWrite(12, white);
 
   if (digitalRead(17) == LOW) {
     if (falling_edge_trigger17 == false) {
@@ -75,20 +75,16 @@ void loop() {
     falling_edge_trigger17 = false;
     delay(10);
   }  
-  if (digitalRead(13) == LOW) {
-    digitalWrite(12, HIGH);
-    //    if (falling_edge_trigger13 == false) {
-    //      Serial.println("t jump");
-    //      falling_edge_trigger13 = true;
-    //      delay(10);
-    //    }
-    //  }
-    //  if (digitalRead(13) == HIGH) {
-    //    falling_edge_trigger13 = false;
-    //    delay(10);
+  if (digitalRead(13) == HIGH) {
+    if (falling_edge_trigger13 == false) {
+      Serial.println("t 100");
+      falling_edge_trigger13 = true;
+      delay(10);
+    }
   } 
-  else {
-    digitalWrite(12, LOW);
+  if (digitalRead(13) == LOW) {
+    falling_edge_trigger13 = false;
+    delay(10);
   }
 
   while (Serial.available()) {

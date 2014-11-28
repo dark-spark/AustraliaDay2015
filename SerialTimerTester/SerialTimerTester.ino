@@ -1,5 +1,5 @@
-int out = 13;
-int in = 17;
+int out = 22;
+int in = 8;
 int count = 5;
 int led = 11;
 boolean triggered = false;
@@ -7,26 +7,27 @@ boolean triggered = false;
 void setup() {                
   pinMode(in, INPUT_PULLUP);
   pinMode(out, OUTPUT);     
+  pinMode(led, OUTPUT);
 }
 
 void loop() {
-  if(!in) {
+  if(digitalRead(in) == LOW) {
     triggered = true;
-  }
-  if(triggered) {
-    digitalWrite(led, HIGH);
-    for(int i = 0; i <= count; i++) {
+  } 
+  if(triggered == true) {
+    for(int i = 0; i < count; i++) {
       digitalWrite(out, HIGH);
+      digitalWrite(led, HIGH);
       delay(1000);
       digitalWrite(out, LOW);    
+      digitalWrite(led, LOW);
       delay(1000);
-      if(i = count -1) {
-        triggered = false;
-        digitalWrite(led, false);
-      }
-    }  
+    }
+    triggered = false;
   }
 }
+
+
 
 
 
