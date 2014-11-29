@@ -1,7 +1,7 @@
 Things to do
 
-1. Create a fill data method. for loop filling with values calculated for postData
-2. Fix postData filling with extra 0's
-3. Fix save to file. And put in method. 
-4. Finish authorised http connection integration and test.
-5. Fix names displaying wrong. 
+1. Create a fill data method. for loop filling with values calculated for postData DONE
+2. Fix postData filling with extra 0's DONE
+3. Fix save to file. And put in method. DONE
+4. Finish authorised http connection integration and test. IN, NEEDS TESTING
+5. Fix names displaying wrong. DONE

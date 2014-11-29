@@ -11,7 +11,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.client.ClientProtocolException;
 
 Serial myPort;        
-int arrayLength = 25;
+int arrayLength = 1000;
 String inData[] = new String[1];
 int mode = 0;
 int time0, time1;
@@ -30,7 +30,7 @@ int currentPerson;
 int count = 0;
 String total;
 String name;
-float data[][] = new float[arrayLength][9];
+float data[][] = new float[arrayLength][10];
 float sortList[] = new float[arrayLength];
 String names[] = new String[arrayLength];
 String songs[] = new String[arrayLength];
@@ -84,23 +84,14 @@ void setup() {
   size(1280, 700);
   frame.setTitle("Australia Day 2015");
   index = 0;
-
+    
   String loadlist[] = loadStrings("list.txt");
   for (int i = 0; i < loadlist.length; i++) {
     String[] split = split(loadlist[i], ',');
-    for (int j = 0; j < 9; j++) {
+    for (int j = 0; j < 10; j++) {
       data[i][j] = float(split[j]);
     }
     index++;
-  }
-
-  String loadsrlist[] = loadStrings("srList.txt");
-  for (int i = 0; i < loadsrlist.length; i++) {
-    String[] split = split(loadsrlist[i], ',');
-    for (int j = 0; j < 2; j++) {
-      srData[i][j] = float(split[j]);
-    }
-    srIndex++;
   }
 
   // Import Names
@@ -116,6 +107,12 @@ void setup() {
   //  for (int i = 0; i < barcodeString.length; i++) {
   //    barcodes[i] = barcodeString[i];
   //  }
+  
+  //Start serial comms and initialise
+  serial = startSerial();
+  if(serial) {
+    myPort.write("redOFF.greenOFF.blueOFF.yellowOFF.");
+  }
 
   //Create fonts
   f1 = createFont("Calibri", 50);
@@ -124,16 +121,6 @@ void setup() {
   f4 = createFont("Arial Unicode MS", 15);
   f5 = createFont("Arial Unicode MS", 15);
   f6 = createFont("Arial Unicode MS", 12);
-
-  //Setup serial communication
-  println(Serial.list());
-  if (Serial.list().length > 0) {
-    myPort = new Serial(this, Serial.list()[0], 9600);
-    myPort.bufferUntil('\n');
-    myPort.write("redOFF.greenOFF.blueOFF.");
-    myPort.clear();
-    serial = true;
-  }
 
   //Set up listbox
   cp5 = new ControlP5(this);
@@ -229,7 +216,6 @@ void draw() {
       pName = name;
       pBarcode = barcode;
       pNameSet = true;
-      //      data[index][0] = float(barcode);
     }
     break;
   case 3: //Flash run up light 
@@ -314,6 +300,7 @@ void draw() {
     break;
   case 8:  //Send Data
     if (salesForce) {
+
       JSONObject rideTest;    
 
       rideTest = new JSONObject();
@@ -331,7 +318,8 @@ void draw() {
       int t = millis();
       Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
       int r = millis() - t;
-      insertTime[index] = r;
+      insertTime[index -1] = r;
+      data[index - 1][9] = r;
     }
 
     mode = 0;
@@ -362,16 +350,16 @@ void draw() {
   }
 
   //  frame.setTitle(int(frameRate) + " fps");
-  //  stroke(225);
-  //  fill(225);
-  //  rectMode(CORNER);
-  //  rect(0, 0, 500, 20);
-  //  fill(0);
-  //  textFont(f6);
-  //  text(mouseX, 130, 20);
-  //  text(mouseY, 160, 20);
-  //  text(mouseX - valueX, 190, 20);
-  //  text(mouseY - valueY, 220, 20);
+  stroke(225);
+  fill(225);
+  rectMode(CORNER);
+  rect(0, 0, 500, 20); 
+  fill(0);
+  textFont(f6);
+  text(mouseX, 130, 20);
+  text(mouseY, 160, 20);
+  text(mouseX - valueX, 190, 20);
+  text(mouseY - valueY, 220, 20);
 }
 
 void keyPressed() {
@@ -477,14 +465,14 @@ void create() {
     }
   }
 
-  //Alternating Bars
+  //Alternating Bars    
+  fill(40);
+  stroke(40);
+  rectMode(CENTER);
   for (int i = 1; i < index + 1 && i < 25; i = i + 2) {
-    fill(40);
-    stroke(40);
-    rectMode(CENTER);
-    rect(width/2 - 25, (201 + (i * 20)), 690, 19, 7);
+    rect(width/2 + 77, (201 + (i * 20)), 1035, 19, 7);
   }
-  rect(width/2 - 25, 114, 690, 24, 7);
+  rect(width/2 + 77, 114, 1035, 24, 7);
 
   //Text for Current Session
   fill(255);
@@ -589,7 +577,6 @@ void create() {
         }
       }
     }
-    //  println("Got here 5");
   } 
   else { //For slowest first
     textFont(f3);
@@ -644,22 +631,15 @@ void create() {
   textAlign(LEFT);
   if (count == 0 && nameSet == true) {
     fill(0, 255, 0);
-    text("Ready", 20, 300);
+//    text("Ready", 20, 300);
   } 
   else {
     fill(255, 0, 0);
-    text("Not Ready", 20, 300);
+//    text("Not Ready", 20, 300);
   }
+  
   //Text for current mode for the swtich
-  text(index, 20, 350);
-  //  text(r, 70, 350);
-  //  text(pName, 50, 350);
-
-  //Variable lights
-  if (nameSet) {
-    fill(255, 0, 0);
-    //    ellipse(100, 320, 25, 25);
-  }
+  text(insertTime[index], 20, 350);
 
   //Mimic lights
   ellipseMode(CORNER);
@@ -698,7 +678,7 @@ void writeTextFile() {
   //Create string for saving to text file
   String[] listString = new String[index];
   for (int i = 0; i < index; i++) {
-    listString[i] = join(nf(int(data[i]),0), ",");
+    listString[i] = join(nf(int(data[i]), 0), ",");
   }
 
   //Save to text file
@@ -717,18 +697,17 @@ void mousePressed() {
       c3 = c1;
     }
   }
-  /*
+
   if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
-   if (justShoot) {
-   justShoot = false;
-   c4 = c1;
-   } 
-   else {
-   justShoot = true;
-   c4 = c2;
-   }
-   }
-   */
+    if (justShoot) {
+      justShoot = false;
+      c4 = c1;
+    } 
+    else {
+      justShoot = true;
+      c4 = c2;
+    }
+  }
 }
 
 void delay(int delay)
