@@ -296,7 +296,6 @@ void draw() {
       int t = millis();
       Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
       int r = millis() - t;
-      insertTime[index -1] = r;
       data[index - 1][9] = r;
     }
 
@@ -588,7 +587,6 @@ void create() {
     }
   }
 
-
   //Draw box and text for sort selection
   rectMode(CORNER);
   textFont(f3);
@@ -619,7 +617,7 @@ void create() {
   }
 
   //Text for current mode for the swtich
-  text(insertTime[index], 20, 350);
+  text(data[index][9], 20, 350);
 
   //Mimic lights
   ellipseMode(CORNER);
