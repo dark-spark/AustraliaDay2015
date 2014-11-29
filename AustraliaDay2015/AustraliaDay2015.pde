@@ -204,6 +204,7 @@ void serialEvent (Serial myPort) {
 
 
 void draw() {
+
   create();
 
   switch(mode) {
@@ -297,10 +298,11 @@ void draw() {
       blueOFF();
       yellowOFF();
       index++;
+      writeTextFile();
       count = 0;
       mode = 8;
       ///////////////////Test Code////////////////
-      selection = int(random(0,10));
+      selection = int(random(0, 10));
       updateName();
       /////////////////// /Testcode/////////////////
     }
@@ -689,6 +691,18 @@ void create() {
     fill(50);
   }
   ellipse(20, 510, 40, 40);
+}
+
+void writeTextFile() {
+
+  //Create string for saving to text file
+  String[] listString = new String[index];
+  for (int i = 0; i < index; i++) {
+    listString[i] = join(nf(int(data[i]),0), ",");
+  }
+
+  //Save to text file
+  saveStrings("list.txt", listString);
 }
 
 void mousePressed() {
