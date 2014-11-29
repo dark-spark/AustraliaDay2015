@@ -77,40 +77,18 @@ int totalLength = 12000;
 float averageSpeed;
 
 boolean salesForce = false;
-int[] insertTime = new int[arrayLength];
 String[] accessDetails = new String[2];
 
 void setup() {
   size(1280, 700);
   frame.setTitle("Australia Day 2015");
   index = 0;
-    
-  String loadlist[] = loadStrings("list.txt");
-  for (int i = 0; i < loadlist.length; i++) {
-    String[] split = split(loadlist[i], ',');
-    for (int j = 0; j < 10; j++) {
-      data[i][j] = float(split[j]);
-    }
-    index++;
-  }
 
-  // Import Names
-  String nameString[] = loadStrings("names.txt");
-  for (int i = 0; i < nameString.length; i++) {
-    String[] split = split(nameString[i], ',');
-    names[i] = split[0];
-    barcodes[i] = split[1];
-  }
+  loadFiles();
 
-  // Import barcodes
-  //  String barcodeString[] = loadStrings("barcodes.txt");
-  //  for (int i = 0; i < barcodeString.length; i++) {
-  //    barcodes[i] = barcodeString[i];
-  //  }
-  
   //Start serial comms and initialise
   serial = startSerial();
-  if(serial) {
+  if (serial) {
     myPort.write("redOFF.greenOFF.blueOFF.yellowOFF.");
   }
 
@@ -349,19 +327,19 @@ void draw() {
     break;
   }
 
-//  frame.setTitle(int(frameRate) + " fps");
+  //  frame.setTitle(int(frameRate) + " fps");
   /*
   stroke(225);
-  fill(225);
-  rectMode(CORNER);
-  rect(0, 0, 500, 20); 
-  fill(0);
-  textFont(f6);
-  text(mouseX, 130, 20);
-  text(mouseY, 160, 20);
-  text(mouseX - valueX, 190, 20);
-  text(mouseY - valueY, 220, 20);
-*/
+   fill(225);
+   rectMode(CORNER);
+   rect(0, 0, 500, 20); 
+   fill(0);
+   textFont(f6);
+   text(mouseX, 130, 20);
+   text(mouseY, 160, 20);
+   text(mouseX - valueX, 190, 20);
+   text(mouseY - valueY, 220, 20);
+   */
 }
 
 void keyPressed() {
@@ -633,13 +611,13 @@ void create() {
   textAlign(LEFT);
   if (count == 0 && nameSet == true) {
     fill(0, 255, 0);
-//    text("Ready", 20, 300);
+    //    text("Ready", 20, 300);
   } 
   else {
     fill(255, 0, 0);
-//    text("Not Ready", 20, 300);
+    //    text("Not Ready", 20, 300);
   }
-  
+
   //Text for current mode for the swtich
   text(insertTime[index], 20, 350);
 
@@ -652,7 +630,7 @@ void create() {
     fill(50, 0, 0);
   }
   ellipse(20, 360, 40, 40);
-  
+
   if (blueON) {
     fill(0, 0, 255);
   }
@@ -660,7 +638,7 @@ void create() {
     fill(0, 0, 50);
   }
   ellipse(20, 410, 40, 40);
-  
+
   if (greenON) {
     fill(0, 255, 0);
   }
@@ -668,7 +646,7 @@ void create() {
     fill(0, 50, 0);
   }
   ellipse(20, 460, 40, 40);
-  
+
   if (yellowON) {
     fill(255);
   }
