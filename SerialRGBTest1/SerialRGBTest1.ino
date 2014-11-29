@@ -3,6 +3,7 @@ boolean falling_edge_trigger17 = false;
 boolean falling_edge_trigger13 = false;
 boolean stringComplete = false;
 String inputString = "";
+int outPin = 45;
 
 void setup() {
   Serial.begin(9600);
@@ -11,6 +12,7 @@ void setup() {
   pinMode(14, OUTPUT);
   pinMode(15, OUTPUT);
   pinMode(16, OUTPUT);
+  pinMode(outPin, OUTPUT);
   pinMode(17, INPUT_PULLUP);
   pinMode(13, INPUT);
   digitalWrite(12, true);
@@ -63,6 +65,7 @@ void loop() {
   digitalWrite(15, green);
   digitalWrite(16, blue);
   digitalWrite(12, white);
+  digitalWrite(outPin, green);
 
   if (digitalRead(17) == LOW) {
     if (falling_edge_trigger17 == false) {

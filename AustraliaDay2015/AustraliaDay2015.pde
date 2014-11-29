@@ -11,7 +11,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.client.ClientProtocolException;
 
 Serial myPort;        
-int arrayLength = 50;
+int arrayLength = 25;
 String inData[] = new String[1];
 int mode = 0;
 int time0, time1;
@@ -236,7 +236,7 @@ void draw() {
       jumpStart = true;
       mode = 9;
     }
-    if (millis() - lightTimer > 500) {
+    if (millis() - lightTimer > 300) {
       lightTimer = millis();
       lightFlash++;
     }
@@ -246,7 +246,7 @@ void draw() {
     else {
       blueOFF();
     }
-    if (millis() - countDown > 3000) {
+    if (millis() - countDown > 1000) {
       mode = 4;
       lightFlash = 0;
     }
@@ -299,6 +299,10 @@ void draw() {
       index++;
       count = 0;
       mode = 8;
+      ///////////////////Test Code////////////////
+      selection = int(random(0,10));
+      updateName();
+      /////////////////// /Testcode/////////////////
     }
     if (jumpStart) {
       mode = 9;
@@ -325,6 +329,7 @@ void draw() {
       int t = millis();
       Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
       int r = millis() - t;
+      insertTime[index] = r;
     }
 
     mode = 0;
@@ -644,7 +649,7 @@ void create() {
     text("Not Ready", 20, 300);
   }
   //Text for current mode for the swtich
-  text(mode, 20, 350);
+  text(index, 20, 350);
   //  text(r, 70, 350);
   //  text(pName, 50, 350);
 
