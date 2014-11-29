@@ -349,7 +349,8 @@ void draw() {
     break;
   }
 
-  //  frame.setTitle(int(frameRate) + " fps");
+//  frame.setTitle(int(frameRate) + " fps");
+  /*
   stroke(225);
   fill(225);
   rectMode(CORNER);
@@ -360,6 +361,7 @@ void draw() {
   text(mouseY, 160, 20);
   text(mouseX - valueX, 190, 20);
   text(mouseY - valueY, 220, 20);
+*/
 }
 
 void keyPressed() {
@@ -650,6 +652,7 @@ void create() {
     fill(50, 0, 0);
   }
   ellipse(20, 360, 40, 40);
+  
   if (blueON) {
     fill(0, 0, 255);
   }
@@ -657,6 +660,7 @@ void create() {
     fill(0, 0, 50);
   }
   ellipse(20, 410, 40, 40);
+  
   if (greenON) {
     fill(0, 255, 0);
   }
@@ -664,6 +668,7 @@ void create() {
     fill(0, 50, 0);
   }
   ellipse(20, 460, 40, 40);
+  
   if (yellowON) {
     fill(255);
   }
@@ -671,18 +676,6 @@ void create() {
     fill(50);
   }
   ellipse(20, 510, 40, 40);
-}
-
-void writeTextFile() {
-
-  //Create string for saving to text file
-  String[] listString = new String[index];
-  for (int i = 0; i < index; i++) {
-    listString[i] = join(nf(int(data[i]), 0), ",");
-  }
-
-  //Save to text file
-  saveStrings("list.txt", listString);
 }
 
 void mousePressed() {
@@ -697,117 +690,10 @@ void mousePressed() {
       c3 = c1;
     }
   }
-
-  if (mouseX > box1X && mouseX < box1X+boxSize && mouseY >box1Y && mouseY < box1Y+boxSize) {
-    if (justShoot) {
-      justShoot = false;
-      c4 = c1;
-    } 
-    else {
-      justShoot = true;
-      c4 = c2;
-    }
-  }
 }
 
 void delay(int delay)
 {
   int time = millis();
   while (millis () - time <= delay);
-}
-
-void greenON() {
-  if (!greenON) {
-    if (serial) {
-      myPort.write("greenON.");
-      myPort.clear();
-    }
-    //    println("Green ON");
-    greenON = true;
-    serialData = false;
-  }
-}
-
-void greenOFF() {
-  if (greenON) {
-    if (serial) {
-      myPort.write("greenOFF.");
-      myPort.clear();
-    }
-    //    println("Green OFF");
-    greenON = false;
-    serialData = false;
-  }
-}
-void blueON() {
-  if (!blueON) {
-    if (serial) {
-      myPort.write("blueON.");
-      myPort.clear();
-    }
-    //    println("Blue ON");
-    blueON = true;
-    serialData = false;
-  }
-}
-
-void blueOFF() {
-  if (blueON) {
-    if (serial) {
-      myPort.write("blueOFF.");
-      myPort.clear();
-    }
-    //    println("Blue OFF");
-    blueON = false;
-    serialData = false;
-  }
-}
-
-void redON() {
-  if (!redON) {
-    if (serial) {
-      myPort.write("redON.");
-      myPort.clear();
-    }
-    //    println("Red ON");
-    redON = true;
-    serialData = false;
-  }
-}
-
-void redOFF() {
-  if (redON) {
-    if (serial) {
-      myPort.write("redOFF.");
-      myPort.clear();
-    }
-    //    println("Red OFF");
-    redON = false;
-    serialData = false;
-  }
-}
-
-void yellowON() {
-  if (!yellowON) {
-    if (serial) {
-      myPort.write("yellowON.");
-      myPort.clear();
-    }
-    //    println("Yellow ON");
-    yellowON = true;
-    serialData = false;
-    myPort.clear();
-  }
-}
-
-void yellowOFF() {
-  if (yellowON) {
-    if (serial) {
-      myPort.write("yellowOFF.");
-      myPort.clear();
-    }
-    //    println("Yellow OFF");
-    yellowON = false;
-    serialData = false;
-  }
 }
