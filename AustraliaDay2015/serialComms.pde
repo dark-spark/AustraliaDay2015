@@ -7,8 +7,7 @@ boolean startSerial() {
     myPort.bufferUntil('\n');
     myPort.clear();
     return true;
-  } 
-  else {
+  } else {
     return false;
   }
 }
@@ -106,5 +105,26 @@ void yellowOFF() {
     //    println("Yellow OFF");
     yellowON = false;
     serialData = false;
+  }
+}
+
+void tone1() {
+  if (serial) {
+    myPort.write("tone1.");
+    myPort.clear();
+  }
+}
+
+void tone2() {
+  if (serial) {
+    myPort.write("tone1.");
+    myPort.clear();
+  }
+}
+
+void tone3() {
+  if (serial) {
+    myPort.write("tone1.");
+    myPort.clear();
   }
 }
