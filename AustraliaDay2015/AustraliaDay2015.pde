@@ -1,6 +1,5 @@
 import controlP5.*;  //<>//
 import processing.serial.*;
-//import http.requests.*;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.HttpClient;
@@ -657,14 +656,18 @@ void create() {
 void mousePressed() {
   //Check if Mouse is over button and toggle on
   if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
-    if (sortFastest) {
-      sortFastest = false;
-      c3 = c2;
-    } 
-    else {
-      sortFastest = true;
-      c3 = c1;
-    }
+//    if (sortFastest) {
+//      sortFastest = false;
+//      c3 = c2;
+//    } 
+//    else {
+//      sortFastest = true;
+//      c3 = c1;
+//    }
+      time1 = millis() - time0;
+      time0 = millis();
+      serialData = true;
+      inData[0] = "t 100";
   }
 }
 

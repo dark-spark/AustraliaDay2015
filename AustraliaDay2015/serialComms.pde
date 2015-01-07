@@ -92,7 +92,6 @@ void yellowON() {
     //    println("Yellow ON");
     yellowON = true;
     serialData = false;
-    myPort.clear();
   }
 }
 
