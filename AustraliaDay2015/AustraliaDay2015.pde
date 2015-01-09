@@ -173,10 +173,10 @@ void draw() {
 
   switch(mode) {
   case 0:  //Set lights for initial position, no barcode set
-    redON();
+    redOFF();
     greenOFF();
     blueOFF();
-    yellowOFF();
+    yellowON();
     mode = 1;
     break;
   case 1: //Check for barcode or name clicked
@@ -186,8 +186,8 @@ void draw() {
     break;
   case 2:  //Barcode set
     blueON();
-    redOFF();
-    mode = 3;
+    yellowOFF();
+    mode = 10;
     countDown = millis();
     if (!pNameSet) {
       pName = name;
@@ -195,6 +195,11 @@ void draw() {
       pNameSet = true;
     }
     break;
+  case 10: //Timer for run up
+    if (millis() - countDown > 3000) {
+      countDown = millis();
+      mode = 3;
+    }
   case 3: //Flash run up light 
     if (serialData) {
       jumpStart = true;
@@ -210,7 +215,7 @@ void draw() {
     else {
       blueOFF();
     }
-    if (millis() - countDown > 1000) {
+    if (millis() - countDown > 2000) {
       mode = 4;
       lightFlash = 0;
     }
@@ -247,7 +252,7 @@ void draw() {
       serialData = false;
       sectorIndex++;
       greenOFF();
-      yellowON();
+      redON();
     }
     if (sectorIndex >= 5) {
       recieveData = false;
@@ -256,18 +261,14 @@ void draw() {
       running = false;
       formatPostData();
       fillData();
-      redON();
+      redOFF();
       greenOFF();
       blueOFF();
-      yellowOFF();
+      yellowON();
       index++;
       writeTextFile();
       count = 0;
       mode = 8;
-      ///////////////////Test Code////////////////
-      selection = int(random(0, 10));
-      updateName();
-      /////////////////// /Testcode/////////////////
     }
     if (jumpStart) {
       mode = 9;
@@ -321,6 +322,8 @@ void draw() {
       mode = 1;
       jumpStart = false;
       lightFlash = 0;
+      redOFF();
+      yellowON();
     }
     break;
   }
