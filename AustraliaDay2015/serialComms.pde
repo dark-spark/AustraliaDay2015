@@ -107,23 +107,44 @@ void yellowOFF() {
   }
 }
 
-void tone1() {
+void tone1ON() {
   if (serial) {
-    myPort.write("tone1.");
+    myPort.write("tone1ON.");
     myPort.clear();
   }
 }
 
-void tone2() {
+void tone1OFF() {
   if (serial) {
-    myPort.write("tone1.");
+    myPort.write("tone1OFF.");
     myPort.clear();
   }
 }
 
-void tone3() {
+void tone2ON() {
   if (serial) {
-    myPort.write("tone1.");
+    myPort.write("tone2ON.");
+    myPort.clear();
+  }
+}
+
+void tone2OFF() {
+  if (serial) {
+    myPort.write("tone2OFF.");
+    myPort.clear();
+  }
+}
+
+void tone3ON() {
+  if (serial) {
+    myPort.write("tone3ON.");
+    myPort.clear();
+  }
+}
+
+void tone3OFF() {
+  if (serial) {
+    myPort.write("tone3OFF.");
     myPort.clear();
   }
 }

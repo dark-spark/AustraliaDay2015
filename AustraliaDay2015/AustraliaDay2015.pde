@@ -74,6 +74,7 @@ int SgraphH = 38; //Speed graph scale
 int ETgraphH = 1500000; //ET graph scale
 int totalLength = 12000;
 float averageSpeed;
+int toneTime = 300; //Time for the flashing of the tone and lights.
 
 boolean salesForce = false;
 String[] accessDetails = new String[2];
@@ -182,6 +183,7 @@ void draw() {
   case 1: //Check for barcode or name clicked
     if (nameSet) {
       mode = 2;
+      tone3ON();
     }
     break;
   case 2:  //Barcode set
@@ -200,22 +202,29 @@ void draw() {
       countDown = millis();
       mode = 3;
     }
-  case 3: //Flash run up light 
     if (serialData) {
       jumpStart = true;
       mode = 9;
     }
-    if (millis() - lightTimer > 300) {
+    break;
+  case 3: //Flash run up light and tones.
+    if (serialData) {
+      jumpStart = true;
+      mode = 9;
+    }
+    if (millis() - lightTimer > toneTime) {
       lightTimer = millis();
       lightFlash++;
     }
     if (lightFlash % 2 == 1) {
       blueON();
+      tone1ON();
     } 
     else {
       blueOFF();
+      tone1OFF();
     }
-    if (millis() - countDown > 2000) {
+    if (millis() - countDown > 2700) {
       mode = 4;
       lightFlash = 0;
     }
@@ -223,6 +232,7 @@ void draw() {
   case 4:  //Set lights
     blueOFF();
     greenON();
+    tone2ON();
     reactionTime0 = millis();
     recieveData = true;
     nameSet = false;
@@ -232,6 +242,9 @@ void draw() {
   case 5:
     break;
   case 6:  //Recieve Data
+    if (millis() - reactionTime0 > toneTime) {
+      tone2OFF();
+    }
     if (serialData) {
       if (sectorIndex == 0) {
         reactionTime = millis() - reactionTime0;
