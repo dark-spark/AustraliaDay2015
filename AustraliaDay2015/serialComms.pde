@@ -12,6 +12,24 @@ boolean startSerial() {
   }
 }
 
+void serialEvent (Serial myPort) {
+  String inString = myPort.readStringUntil('\n');
+  if (inString != null) {
+    String match[] = match(inString, "t");
+    if (match != null) {
+      time1 = millis() - time0;
+      time0 = millis();
+      print(inString);
+      serialData = true;
+      inString = trim(inString);
+      String[] split = split(inString, ',');
+      for (int i = 0; i < split.length; i++) {
+        inData[i] = split[i];
+      }
+    }
+  }
+}
+
 void greenON() {
   if (!greenON) {
     if (serial) {

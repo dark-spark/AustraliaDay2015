@@ -135,37 +135,10 @@ void setup() {
   }
 
   if (salesForce) {
-
-    String[] salesforceLoginDetails = new String[6];
-
-    salesforceLoginDetails[0] = "mick.wheelz@gmail.com"; //username
-    salesforceLoginDetails[1] = "InItial89ULi8HaMXOIx418iTkHK6gmTPT"; //password and token
-    salesforceLoginDetails[2] = "https://login.salesforce.com"; //login url
-    salesforceLoginDetails[3] ="/services/oauth2/token?grant_type=password"; // grant type
-    salesforceLoginDetails[4] = "3MVG9Y6d_Btp4xp5LLJdvxJXv2qYyLbJtrC13AyKJVy1l9h9xq2eQzIGhC5IaQiCOnt0Btssf1NUL1BckOZad"; //client id
-    salesforceLoginDetails[5] = "3875746611375330421"; //client secret 
-
-    accessDetails = loginSalesforce(salesforceLoginDetails);
+    salesForceLogin();
   }
 }
 
-void serialEvent (Serial myPort) {
-  String inString = myPort.readStringUntil('\n');
-  if (inString != null) {
-    String match[] = match(inString, "t");
-    if (match != null) {
-      time1 = millis() - time0;
-      time0 = millis();
-      print(inString);
-      serialData = true;
-      inString = trim(inString);
-      String[] split = split(inString, ',');
-      for (int i = 0; i < split.length; i++) {
-        inData[i] = split[i];
-      }
-    }
-  }
-}
 
 
 void draw() {
