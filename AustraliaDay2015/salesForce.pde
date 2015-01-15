@@ -109,6 +109,29 @@ void salesForceLogin() {
     
 }
 
+void salesForceSendData() {
+  
+      JSONObject rideTest;    
+
+      rideTest = new JSONObject();
+
+      rideTest.setString("Barcode__c", postData[0]);
+      rideTest.setFloat("Reaction_Time__c", float(postData[1]));
+      rideTest.setFloat("Speed__c", float(postData[2]));
+      rideTest.setFloat("ET__c", float(postData[3]));
+      rideTest.setFloat("Sector_1__c", float(postData[4]));
+      rideTest.setFloat("Sector_2__c", float(postData[5] ));
+      rideTest.setFloat("Sector_3__c", float(postData[6] ));
+      rideTest.setFloat("Sector_4__c", float(postData[7]));
+      rideTest.setFloat("Total_Time__c", float(postData[8]));
+
+      int t = millis();
+      Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
+      int r = millis() - t;
+      data[index - 1][9] = r;
+      
+}
+
 /* String readProducts( String[] accessDetails ) {
   
   HttpClient httpclient = HttpClientBuilder.create().build();

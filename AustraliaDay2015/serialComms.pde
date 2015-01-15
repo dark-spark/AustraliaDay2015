@@ -166,3 +166,10 @@ void tone3OFF() {
     myPort.clear();
   }
 }
+
+void play1upTone() {
+  if (serial) {
+     myPort.write("tone1UP.");
+     myPort.clear();
+  }
+}

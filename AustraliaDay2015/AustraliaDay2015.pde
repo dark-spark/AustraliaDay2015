@@ -1,4 +1,4 @@
-import controlP5.*;  //<>//
+import controlP5.*;  //<>// //<>//
 import processing.serial.*;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
@@ -119,7 +119,7 @@ void setup() {
   l.captionLabel().style().marginTop = 3;
   l.valueLabel().style().marginTop = 3;
 
-  for (int i=0;i< nameString.length ;i++) {
+  for (int i=0; i< nameString.length; i++) {
     ListBoxItem lbi = l.addItem(names[i], i);
     lbi.setColorBackground(#EAEAEA);
   }
@@ -192,8 +192,7 @@ void draw() {
     if (lightFlash % 2 == 1) {
       blueON();
       tone1ON();
-    } 
-    else {
+    } else {
       blueOFF();
       tone1OFF();
     }
@@ -222,15 +221,13 @@ void draw() {
       if (sectorIndex == 0) {
         reactionTime = millis() - reactionTime0;
         count++;
-      } 
-      else {
+      } else {
         if (sectorIndex == 1) {
           String[] split = split(inData[0], " ");
           timeArray[sectorIndex] = str(time1);
           timeArray[0] = split[1];
           count = count+2;
-        }
-        else {
+        } else {
           timeArray[sectorIndex] = str(time1);
           count++;
         }
@@ -264,27 +261,11 @@ void draw() {
     break;
   case 8:  //Send Data
     if (salesForce) {
-
-      JSONObject rideTest;    
-
-      rideTest = new JSONObject();
-
-      rideTest.setString("Barcode__c", postData[0]);
-      rideTest.setFloat("Reaction_Time__c", float(postData[1]));
-      rideTest.setFloat("Speed__c", float(postData[2]));
-      rideTest.setFloat("ET__c", float(postData[3]));
-      rideTest.setFloat("Sector_1__c", float(postData[4]));
-      rideTest.setFloat("Sector_2__c", float(postData[5] ));
-      rideTest.setFloat("Sector_3__c", float(postData[6] ));
-      rideTest.setFloat("Sector_4__c", float(postData[7]));
-      rideTest.setFloat("Total_Time__c", float(postData[8]));
-
-      int t = millis();
-      Boolean insertSlideResult = insertSlide(accessDetails, rideTest);
-      int r = millis() - t;
-      data[index - 1][9] = r;
+      salesForceSendData();
     }
-
+    if (data[index -  1][8] <= min[8]) {
+      play1upTone();
+    }
     mode = 0;
     break;
   case 9:  //Jump start
@@ -300,8 +281,7 @@ void draw() {
     }
     if (lightFlash % 2 == 1) {
       redON();
-    } 
-    else {
+    } else {
       redOFF();
     }
     if (lightFlash > 30) {
@@ -357,8 +337,7 @@ void keyPressed() {
         nameSet = true;
       }
     }
-  }
-  else {
+  } else {
     typing = typing + key;
   }
 }
@@ -463,34 +442,29 @@ void create() {
         rectMode(CORNERS);
         fill(c1);
         text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
-      } 
-      else if (data[index -  1][i] >= max[i]) {
+      } else if (data[index -  1][i] >= max[i]) {
         rectMode(CORNERS);
         fill(c2);
         text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
-      } 
-      else {
+      } else {
         fill(255);
         text(String.format("%.2f", data[index -  1][i]), width/2 - (115 * (4 - i)) + 57, 120);
       }
     }
     fill(255);
     text(names[int(data[index - 1][0])], width/2 - (115 * 4) + 57, 120);
-  } 
-  else {
+  } else {
     for (int i = 1; i < count + 1; i++) {
       //Check for minimum time 
       if (data[index][i] <= min[i]) {
         rectMode(CORNERS);
         fill(c1);
         //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-      } 
-      else if (data[index][i] >= max[i]) {
+      } else if (data[index][i] >= max[i]) {
         rectMode(CORNERS);
         fill(c2);
         //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
-      } 
-      else {
+      } else {
         fill(255);
         //        text(String.format("%.2f", data[index][i]), width/2 - (115 * (4 - i)) + 57, 120);
       }
@@ -531,21 +505,18 @@ void create() {
           fill(c1);
           //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
           text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-        }
-        else if (data[sortListPos[i]][j] >= max[j]) {
+        } else if (data[sortListPos[i]][j] >= max[j]) {
           rectMode(CORNERS);
           fill(c2);
           //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
           text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-        } 
-        else {
+        } else {
           fill(255);
           text(String.format("%.2f", data[sortListPos[i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         }
       }
     }
-  } 
-  else { //For slowest first
+  } else { //For slowest first
     textFont(f3);
     for (int i = 0; i < index && i < 24; i++) {
       fill(255);
@@ -560,14 +531,12 @@ void create() {
           fill(c1);
           //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
           text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-        }
-        else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
+        } else if (data[sortListPos[index - 1-i]][j] >= max[j]) {
           rectMode(CORNERS);
           fill(c2);
           //          rect(410 + ((j - 1) * 115), 210+(i*20), 525 + ((j-1)*115), 230+(i*20));
           text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
-        } 
-        else {
+        } else {
           fill(255);
           text(String.format("%.2f", data[sortListPos[index-1-i]][j]), width/2 - (115 * (4 - j)) + 57, 226 + (20 * i));
         }
@@ -584,8 +553,7 @@ void create() {
   fill(255);
   if (sortFastest) {
     text("Fastest", boxX+20, boxY+13);
-  } 
-  else {
+  } else {
     text("Slowest", boxX+20, boxY+13);
   }
   fill(c3);
@@ -598,8 +566,7 @@ void create() {
   if (count == 0 && nameSet == true) {
     fill(0, 255, 0);
     //    text("Ready", 20, 300);
-  } 
-  else {
+  } else {
     fill(255, 0, 0);
     //    text("Not Ready", 20, 300);
   }
@@ -611,32 +578,28 @@ void create() {
   ellipseMode(CORNER);
   if (redON) {
     fill(255, 0, 0);
-  } 
-  else { 
+  } else { 
     fill(50, 0, 0);
   }
   ellipse(20, 360, 40, 40);
 
   if (blueON) {
     fill(0, 0, 255);
-  }
-  else {
+  } else {
     fill(0, 0, 50);
   }
   ellipse(20, 410, 40, 40);
 
   if (greenON) {
     fill(0, 255, 0);
-  }
-  else {
+  } else {
     fill(0, 50, 0);
   }
   ellipse(20, 460, 40, 40);
 
   if (yellowON) {
     fill(255);
-  }
-  else {
+  } else {
     fill(50);
   }
   ellipse(20, 510, 40, 40);
@@ -645,18 +608,18 @@ void create() {
 void mousePressed() {
   //Check if Mouse is over button and toggle on
   if (mouseX > boxX && mouseX < boxX+boxSize && mouseY >boxY && mouseY < boxY+boxSize) {
-//    if (sortFastest) {
-//      sortFastest = false;
-//      c3 = c2;
-//    } 
-//    else {
-//      sortFastest = true;
-//      c3 = c1;
-//    }
-      time1 = millis() - time0;
-      time0 = millis();
-      serialData = true;
-      inData[0] = "t 100";
+    //    if (sortFastest) {
+    //      sortFastest = false;
+    //      c3 = c2;
+    //    } 
+    //    else {
+    //      sortFastest = true;
+    //      c3 = c1;
+    //    }
+    time1 = millis() - time0;
+    time0 = millis();
+    serialData = true;
+    inData[0] = "t 100";
   }
 }
 
