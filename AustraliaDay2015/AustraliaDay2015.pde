@@ -76,7 +76,7 @@ int totalLength = 12000;
 float averageSpeed;
 int toneTime = 300; //Time for the flashing of the tone and lights.
 
-boolean salesForce = true;
+boolean salesForce = false;
 String[] accessDetails = new String[2];
 
 void setup() {
@@ -152,6 +152,7 @@ void draw() {
     blueOFF();
     yellowON();
     mode = 1;
+    jumpStart = false;
     break;
   case 1: //Check for barcode or name clicked
     if (nameSet) {
@@ -266,6 +267,9 @@ void draw() {
     mode = 0;
     break;
   case 9:  //Jump start
+    println("JumpStart");
+    nameSet = false;
+    running = true;
     
     if (serialData) {
       if (sectorIndex == 0) {
