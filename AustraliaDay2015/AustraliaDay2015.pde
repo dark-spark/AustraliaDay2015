@@ -16,7 +16,7 @@ int mode = 0;
 int time0, time1;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, recieveData, running, jumpStart, jumpEnable, lightsFinished, serial;
+boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -206,7 +206,6 @@ void draw() {
     blueOFF();
     greenON();
     reactionTime0 = millis();
-    recieveData = true;
     nameSet = false;
     running = true;
     mode = 6;
@@ -235,7 +234,6 @@ void draw() {
       redON();
     }
     if (sectorIndex >= 5) {
-      recieveData = false;
       sectorIndex = 0;
       pNameSet = false;
       running = false;
@@ -267,7 +265,7 @@ void draw() {
     mode = 0;
     break;
   case 9:  //Jump start
-    println("JumpStart");
+  
     nameSet = false;
     running = true;
     
@@ -350,24 +348,24 @@ void keyPressed() {
   valueX = mouseX;
   valueY = mouseY;
 
-  if (key == '\n') {
-      if(barcodeGood(typing)) {
-        player = typing;
-        typing = ""; 
-        for (int i = 0; i < barcodes.length; i++) {
-          if (player.equals(barcodes[i])) {
-            firstClick = false;
-            int selection = i;
-            println(names[selection]);
-            l.captionLabel().set(names[selection]);
-            data[index][0] = selection;
-            name = names[int(data[index][0])];
-            barcode = barcodes[selection];
-            count = 0;
-            nameSet = true;
-          }
+  if (key == '\n' || keyCode == RETURN || keyCode == ENTER) {
+    if(barcodeGood(typing)) {
+      player = typing;
+      typing = "";
+      for (int i = 0; i < barcodes.length; i++) {
+        if (player.equals(barcodes[i])) {
+          firstClick = false;
+          int selection = i;
+          println(names[selection]);
+          l.captionLabel().set(names[selection]);
+          data[index][0] = selection;
+          name = names[int(data[index][0])];
+          barcode = barcodes[selection];
+          count = 0;
+          nameSet = true;
         }
       }
+    }
   } else {
     typing = typing + key;
   }
