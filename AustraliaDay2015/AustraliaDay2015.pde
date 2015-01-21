@@ -406,7 +406,7 @@ void updateName() {
 void formatPostData() {
   float speed = trapDistance / int(timeArray[0]) * 360;
   int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
-  int totalTime = et + reactionTime;
+  int totalTime = et + abs(reactionTime);
   postData[0] = pBarcode;
   postData[1] = str(reactionTime + .0);
   postData[2] = str(speed);
