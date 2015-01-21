@@ -47,7 +47,6 @@ int sortListPos[] = new int[arrayLength];
 boolean firstClick = true;
 String typing = "";
 String player = "";
-boolean nameGood = false;
 int srIndex;
 int selection;
 ControlP5 cp5;
@@ -314,32 +313,43 @@ void keyPressed() {
   valueX = mouseX;
   valueY = mouseY;
 
-  if (typing.length() > 4) {
-    if (typing.substring(typing.length() - 5).equals("name-")) {
-      typing = "";
-      nameGood = true;
-    }
-  }
-  if (key == '.' && nameGood == true) {
-    player = typing;
-    typing = ""; 
-    nameGood = false;
-    for (int i = 0; i < barcodes.length; i++) {
-      if (player.equals(barcodes[i])) {
-        firstClick = false;
-        int selection = i;
-        println(names[selection]);
-        l.captionLabel().set(names[selection]);
-        data[index][0] = selection;
-        name = names[int(data[index][0])];
-        barcode = barcodes[selection];
-        count = 0;
-        nameSet = true;
+  if (key == '\n') {
+      if(barcodeGood(typing)) {
+        player = typing;
+        typing = ""; 
+        for (int i = 0; i < barcodes.length; i++) {
+          if (player.equals(barcodes[i])) {
+            firstClick = false;
+            int selection = i;
+            println(names[selection]);
+            l.captionLabel().set(names[selection]);
+            data[index][0] = selection;
+            name = names[int(data[index][0])];
+            barcode = barcodes[selection];
+            count = 0;
+            nameSet = true;
+          }
+        }
       }
-    }
   } else {
     typing = typing + key;
   }
+  
+  if (typing.length() > 2) {
+    typing = typing.substring(1);
+  }
+}
+
+boolean barcodeGood(String text) {
+  text = trim(text);
+  boolean good = false;
+  for(int i = 0; i < barcodes.length; i++) {
+    if(text.equals(barcodes[i])) {
+      good = true;
+      break;
+    }
+  }
+  return good;
 }
 
 void controlEvent(ControlEvent theEvent) {
@@ -572,7 +582,7 @@ void create() {
   }
 
   //Text for current mode for the swtich
-  text(data[index][9], 20, 350);
+  text(typing, 20, 350);
 
   //Mimic lights
   ellipseMode(CORNER);
