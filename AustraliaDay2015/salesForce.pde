@@ -124,6 +124,7 @@ void salesForceSendData() {
       rideTest.setFloat("Sector_3__c", float(postData[6] ));
       rideTest.setFloat("Sector_4__c", float(postData[7]));
       rideTest.setFloat("Total_Time__c", float(postData[8]));
+      rideTest.setBoolean("False_Start__c", boolean(postData[9]));
 
       int t = millis();
       Boolean insertSlideResult = insertSlide(accessDetails, rideTest);

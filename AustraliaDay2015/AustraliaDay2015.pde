@@ -20,7 +20,7 @@ boolean redON, greenON, blueON, yellowON, recieveData, running, jumpStart, jumpE
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
-String postData[] = new String[9];
+String postData[] = new String[10];
 boolean pNameSet = false;
 String pName = "";
 String pBarcode;
@@ -41,6 +41,7 @@ boolean sect2min = false;
 boolean sect3min = false;
 boolean sect4min = false;
 boolean totalmin = false;
+boolean flash = false;
 float min[] = new float[9];
 float max[] = new float[9];
 int sortListPos[] = new int[arrayLength];
@@ -75,7 +76,7 @@ int totalLength = 12000;
 float averageSpeed;
 int toneTime = 300; //Time for the flashing of the tone and lights.
 
-boolean salesForce = false;
+boolean salesForce = true;
 String[] accessDetails = new String[2];
 
 void setup() {
@@ -171,18 +172,20 @@ void draw() {
     break;
   case 10: //Timer for run up
     if (millis() - countDown > 3000) {
-      countDown = millis();
       mode = 3;
     }
     if (serialData) {
       jumpStart = true;
       mode = 9;
+      flash = true;
+      serialData = true;
     }
     break;
   case 3: //Flash run up light and tones.
     if (serialData) {
       jumpStart = true;
       mode = 9;
+      flash = true;
     }
     if (millis() - lightTimer > toneTime) {
       lightTimer = millis();
@@ -190,12 +193,10 @@ void draw() {
     }
     if (lightFlash % 2 == 1) {
       blueON();
-      tone1ON();
     } else {
       blueOFF();
-      tone1OFF();
     }
-    if (millis() - countDown > 2700) {
+    if (millis() - countDown > 5700) {
       mode = 4;
       lightFlash = 0;
     }
@@ -203,7 +204,6 @@ void draw() {
   case 4:  //Set lights
     blueOFF();
     greenON();
-    tone2ON();
     reactionTime0 = millis();
     recieveData = true;
     nameSet = false;
@@ -213,9 +213,6 @@ void draw() {
   case 5:
     break;
   case 6:  //Recieve Data
-    if (millis() - reactionTime0 > toneTime) {
-      tone2OFF();
-    }
     if (serialData) {
       if (sectorIndex == 0) {
         reactionTime = millis() - reactionTime0;
@@ -254,41 +251,77 @@ void draw() {
     }
     if (jumpStart) {
       mode = 9;
+      flash = true;
     }
     break;
   case 7:
     break;
   case 8:  //Send Data
-    if (salesForce) {
-      salesForceSendData();
-    }
     if (data[index -  1][8] <= min[8]) {
       play1upTone();
+    }
+    if (salesForce) {
+      salesForceSendData();
     }
     mode = 0;
     break;
   case 9:  //Jump start
-    recieveData = false;
-    sectorIndex = 0;
-    nameSet = false;
-    pNameSet = false;
-    running = false;
-    blueOFF();
-    if (millis() - lightTimer > 100) {
-      lightTimer = millis();
-      lightFlash++;
-    }
-    if (lightFlash % 2 == 1) {
+    
+    if (serialData) {
+      if (sectorIndex == 0) {
+        println("First");
+        reactionTime = millis() - countDown - 5700;
+        count++;
+      } else {
+        if (sectorIndex == 1) {
+          String[] split = split(inData[0], " ");
+          timeArray[sectorIndex] = str(time1);
+          timeArray[0] = split[1];
+          count = count+2;
+        } else {
+          timeArray[sectorIndex] = str(time1);
+          count++;
+        }
+      }
+      serialData = false;
+      sectorIndex++;
+      greenOFF();
       redON();
-    } else {
-      redOFF();
     }
-    if (lightFlash > 30) {
-      mode = 1;
-      jumpStart = false;
-      lightFlash = 0;
+    
+    blueOFF();
+    
+    if (flash) {
+      if (millis() - lightTimer > 100) {
+        lightTimer = millis();
+        lightFlash++;
+      }
+      if (lightFlash % 2 == 1) {
+        redON();
+      } else {
+        redOFF();
+      }
+      if (lightFlash > 10) {
+        flash = false;
+        lightFlash = 0;
+        redON();
+      }
+    }
+    
+    if (sectorIndex >= 5) {
+      sectorIndex = 0;
+      pNameSet = false;
+      running = false;
+      formatPostData();
+      fillData();
       redOFF();
+      greenOFF();
+      blueOFF();
       yellowON();
+      index++;
+      writeTextFile();
+      count = 0;
+      mode = 8;
     }
     break;
   }
@@ -383,6 +416,7 @@ void formatPostData() {
   postData[6] = str(float(timeArray[4]));
   postData[7] = str(et + .0);
   postData[8] = str(totalTime + .0);
+  postData[9] = str(jumpStart);
 }
 
 void fillData() {
