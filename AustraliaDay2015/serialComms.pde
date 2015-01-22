@@ -27,6 +27,10 @@ void serialEvent (Serial myPort) {
         inData[i] = split[i];
       }
     }
+    match = match(inString, "yes");
+    if (match != null) {
+      yesRecieved = true;
+    }
   }
 }
 
@@ -171,5 +175,28 @@ void play1upTone() {
   if (serial) {
      myPort.write("tone1UP.");
      myPort.clear();
+  }
+}
+
+void sendUp() {
+  if (serial) {
+   myPort.write("up");
+   myPort.clear();
+  }
+}
+
+boolean ping() {
+  if(serial) {
+    yesRecieved = false;
+    sendUp();
+    int time = millis();
+    while(millis() - time < 100) {
+      if(yesRecieved) {
+        return true;
+      } 
+    }
+    return false;
+  } else {
+    return false;
   }
 }
