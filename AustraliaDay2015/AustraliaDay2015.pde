@@ -377,7 +377,7 @@ void draw() {
   }
 
 
-  //  frame.setTitle(int(frameRate) + " fps");
+  frame.setTitle(int(frameRate) + " fps");
 
   //  stroke(225);
   //   fill(225);
@@ -404,7 +404,7 @@ void keyPressed() {
         if (player.equals(barcodes[i])) {
           firstClick = false;
           int selection = i;
-//          println(names[selection]);
+          //          println(names[selection]);
           l.captionLabel().set(names[selection]);
           data[index][0] = selection;
           name = names[int(data[index][0])];
@@ -445,7 +445,7 @@ void controlEvent(ControlEvent theEvent) {
 
 void updateName() {
   firstClick = false;
-//  println(names[selection]);
+  //  println(names[selection]);
   l.captionLabel().set(names[selection]);
   data[index][0] = selection;
   name = names[int(data[index][0])];

@@ -1,0 +1,2 @@
+yes. and no. display blocked sensors. 
+turn lights off if sensors are blocked. 
