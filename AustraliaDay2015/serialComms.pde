@@ -29,7 +29,7 @@ void serialEvent (Serial myPort) {
     }
     match = match(inString, "yes");
     if (match != null) {
-      yesRecieved = true;
+      yesReceived = true;
     }
   }
 }
@@ -185,18 +185,25 @@ void sendUp() {
   }
 }
 
+void reset() {
+  if (serial) {
+   myPort.write("reset");
+   myPort.clear();
+  }
+}
+
 boolean ping() {
   if(serial) {
-    yesRecieved = false;
+    yesReceived = false;
     sendUp();
     int time = millis();
     while(millis() - time < 100) {
-      if(yesRecieved) {
+      if(yesReceived) {
         return true;
       } 
     }
     return false;
   } else {
-    return false;
+    return true;
   }
 }

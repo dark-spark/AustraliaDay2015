@@ -16,7 +16,7 @@ int mode = 0;
 int time0, time1, time2;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesRecieved, pingFailed;
+boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, pingFailed;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -104,7 +104,7 @@ void setup() {
   cp5 = new ControlP5(this);
   l = cp5.addListBox("myList")
     .setPosition(6, 21)
-      .setSize(120, 500)
+      .setSize(120, 200)
         .setItemHeight(15)
           .setBarHeight(15)
             .setColorBackground(color(255, 255, 255))
@@ -155,7 +155,7 @@ void draw() {
     jumpStart = false;
     time2 = millis();
     break;
-  case 1: //Check for barcode or name clicked
+  case 1: //Check for barcode or name clicked, while waiting ping uC every 2 seconds to make sure its still alive.
   
     if (nameSet) {
       mode = 2;
@@ -208,7 +208,7 @@ void draw() {
     } else {
       blueOFF();
     }
-    if (millis() - countDown > 5700) {
+    if (millis() - countDown > 5400) {
       mode = 4;
       lightFlash = 0;
     }
@@ -242,7 +242,7 @@ void draw() {
       serialData = false;
       sectorIndex++;
       greenOFF();
-      redON();
+      yellowON();
     }
     if (sectorIndex >= 5) {
       sectorIndex = 0;
@@ -342,7 +342,7 @@ void draw() {
       pingFailed = true;
       
       if (millis() - time2 > 1000) {
-        if(!ping()) {
+        if(ping()) {
           pingFailed = false;
           mode = 0;
         }
@@ -352,7 +352,7 @@ void draw() {
       stroke(255, 0, 0);
       fill(255, 0, 0);
       textSize(300);
-      text("Ping \nFailed", 200, 200);
+      text("Ping \nFailed", 350, 250);
       break;
   }
   
