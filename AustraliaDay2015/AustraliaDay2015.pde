@@ -83,6 +83,7 @@ String[] accessDetails = new String[2];
 
 void setup() {
   size(1280, 700);
+  frameRate(1000);
   frame.setTitle("Australia Day 2015");
   index = 0;
 
@@ -152,7 +153,8 @@ void draw() {
     redOFF();
     greenOFF();
     blueOFF();
-    yellowON();
+    yellowOFF();
+    whiteON();
     mode = 1;
     jumpStart = false;
     time2 = millis();
@@ -187,7 +189,7 @@ void draw() {
 
   case 2:  //Barcode set
     blueON();
-    yellowOFF();
+    whiteOFF();
     mode = 10;
     countDown = millis();
     if (!pNameSet) {
@@ -204,6 +206,7 @@ void draw() {
       jumpStart = true;
       mode = 9;
       flash = true;
+      toneFalseStart();
       serialData = true;
     }
     break;
@@ -231,7 +234,6 @@ void draw() {
     break;
   case 4:  //Set lights
     blueOFF();
-    tone1OFF();
     greenON();
     tone2ON();
     reactionTime0 = millis();
@@ -250,7 +252,6 @@ void draw() {
         if (sectorIndex == 1) {
           String trapTime = inData[0];
           String trapTime1 = trapTime.substring(2);
-          println(trapTime1);
           timeArray[sectorIndex] = str(time1);
           timeArray[0] = trapTime1;
           count = count+2;
@@ -303,7 +304,6 @@ void draw() {
 
     if (serialData) {
       if (sectorIndex == 0) {
-        println("First");
         reactionTime = millis() - countDown - runUpTimer1;
         count++;
       } else {
@@ -404,7 +404,7 @@ void keyPressed() {
         if (player.equals(barcodes[i])) {
           firstClick = false;
           int selection = i;
-          println(names[selection]);
+//          println(names[selection]);
           l.captionLabel().set(names[selection]);
           data[index][0] = selection;
           name = names[int(data[index][0])];
@@ -445,7 +445,7 @@ void controlEvent(ControlEvent theEvent) {
 
 void updateName() {
   firstClick = false;
-  println(names[selection]);
+//  println(names[selection]);
   l.captionLabel().set(names[selection]);
   data[index][0] = selection;
   name = names[int(data[index][0])];
@@ -455,7 +455,6 @@ void updateName() {
 
 void formatPostData() {
   float speed = float(trapDistance) / float(timeArray[0]) * 3.6;
-  println(speed);
   int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
   int totalTime = et + abs(reactionTime);
   postData[0] = pBarcode;
