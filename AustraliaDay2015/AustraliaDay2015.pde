@@ -13,10 +13,12 @@ Serial myPort;
 int arrayLength = 1000;
 String inData[] = new String[1];
 int mode = 0;
+int runUpTimer = 3000;
+int runUpTimer1 = runUpTimer + 2700;
 int time0, time1, time2;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, pingFailed;
+boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, pingFailed, heartbeat;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -156,21 +158,33 @@ void draw() {
     time2 = millis();
     break;
   case 1: //Check for barcode or name clicked, while waiting ping uC every 2 seconds to make sure its still alive.
-  
+
     if (nameSet) {
       mode = 2;
       tone3ON();
       break;
     }
-    
+
     if (millis() - time2 > 2000) {
-      if(!ping()) {
+      heartbeat = !heartbeat;
+      if (!ping()) {
         mode = 11;
+        heartbeat = false;
       }
       time2 = millis();
     }
+
+    //Heartbeat 
+    ellipseMode(CENTER);
+    if (heartbeat) {
+      fill(255, 0, 0);
+    } else { 
+      fill(0, 0, 0);
+    }
+    ellipse(1255, 20, 30, 30);
+
     break;
-    
+
   case 2:  //Barcode set
     blueON();
     yellowOFF();
@@ -183,7 +197,7 @@ void draw() {
     }
     break;
   case 10: //Timer for run up
-    if (millis() - countDown > 3000) {
+    if (millis() - countDown > runUpTimer) {
       mode = 3;
     }
     if (serialData) {
@@ -197,6 +211,7 @@ void draw() {
     if (serialData) {
       jumpStart = true;
       mode = 9;
+      toneFalseStart();
       flash = true;
     }
     if (millis() - lightTimer > toneTime) {
@@ -205,17 +220,20 @@ void draw() {
     }
     if (lightFlash % 2 == 1) {
       blueON();
+      tone1ON();
     } else {
       blueOFF();
     }
-    if (millis() - countDown > 5400) {
+    if (millis() - countDown > runUpTimer1) {
       mode = 4;
       lightFlash = 0;
     }
     break;
   case 4:  //Set lights
     blueOFF();
+    tone1OFF();
     greenON();
+    tone2ON();
     reactionTime0 = millis();
     nameSet = false;
     running = true;
@@ -230,9 +248,11 @@ void draw() {
         count++;
       } else {
         if (sectorIndex == 1) {
-          String[] split = split(inData[0], " ");
+          String trapTime = inData[0];
+          String trapTime1 = trapTime.substring(2);
+          println(trapTime1);
           timeArray[sectorIndex] = str(time1);
-          timeArray[0] = split[1];
+          timeArray[0] = trapTime1;
           count = count+2;
         } else {
           timeArray[sectorIndex] = str(time1);
@@ -261,6 +281,7 @@ void draw() {
     }
     if (jumpStart) {
       mode = 9;
+      toneFalseStart();
       flash = true;
     }
     break;
@@ -276,14 +297,14 @@ void draw() {
     mode = 0;
     break;
   case 9:  //Jump start
-  
+
     nameSet = false;
     running = true;
-    
+
     if (serialData) {
       if (sectorIndex == 0) {
         println("First");
-        reactionTime = millis() - countDown - 5700;
+        reactionTime = millis() - countDown - runUpTimer1;
         count++;
       } else {
         if (sectorIndex == 1) {
@@ -301,9 +322,9 @@ void draw() {
       greenOFF();
       redON();
     }
-    
+
     blueOFF();
-    
+
     if (flash) {
       if (millis() - lightTimer > 100) {
         lightTimer = millis();
@@ -320,7 +341,7 @@ void draw() {
         redON();
       }
     }
-    
+
     if (sectorIndex >= 5) {
       sectorIndex = 0;
       pNameSet = false;
@@ -337,39 +358,37 @@ void draw() {
       mode = 8;
     }
     break;
-    
-    case 11:
-      pingFailed = true;
-      
-      if (millis() - time2 > 1000) {
-        if(ping()) {
-          pingFailed = false;
-          mode = 0;
-        }
-        time2 = millis();
+
+  case 11:
+    pingFailed = true;
+    if (millis() - time2 > 1000) {
+      if (ping()) {
+        pingFailed = false;
+        mode = 0;
       }
-      
-      stroke(255, 0, 0);
-      fill(255, 0, 0);
-      textSize(300);
-      text("Ping \nFailed", 350, 250);
-      break;
+      time2 = millis();
+    }
+
+    stroke(255, 0, 0);
+    fill(255, 0, 0);
+    textSize(300);
+    text("Ping \nFailed", 350, 250);
+    break;
   }
-  
+
 
   //  frame.setTitle(int(frameRate) + " fps");
-  /*
-  stroke(225);
-   fill(225);
-   rectMode(CORNER);
-   rect(0, 0, 500, 20); 
-   fill(0);
-   textFont(f6);
-   text(mouseX, 130, 20);
-   text(mouseY, 160, 20);
-   text(mouseX - valueX, 190, 20);
-   text(mouseY - valueY, 220, 20);
-   */
+
+  //  stroke(225);
+  //   fill(225);
+  //   rectMode(CORNER);
+  //   rect(0, 0, 500, 20); 
+  //   fill(0);
+  //   textFont(f6);
+  //   text(mouseX, 130, 20);
+  //   text(mouseY, 160, 20);
+  //   text(mouseX - valueX, 190, 20);
+  //   text(mouseY - valueY, 220, 20);
 }
 
 void keyPressed() {
@@ -378,7 +397,7 @@ void keyPressed() {
   valueY = mouseY;
 
   if (key == '\n' || keyCode == RETURN || keyCode == ENTER) {
-    if(barcodeGood(typing)) {
+    if (barcodeGood(typing)) {
       player = typing;
       typing = "";
       for (int i = 0; i < barcodes.length; i++) {
@@ -398,7 +417,7 @@ void keyPressed() {
   } else {
     typing = typing + key;
   }
-  
+
   if (typing.length() > 2) {
     typing = typing.substring(1);
   }
@@ -407,8 +426,8 @@ void keyPressed() {
 boolean barcodeGood(String text) {
   text = trim(text);
   boolean good = false;
-  for(int i = 0; i < barcodes.length; i++) {
-    if(text.equals(barcodes[i])) {
+  for (int i = 0; i < barcodes.length; i++) {
+    if (text.equals(barcodes[i])) {
       good = true;
       break;
     }
@@ -435,7 +454,8 @@ void updateName() {
 }
 
 void formatPostData() {
-  float speed = trapDistance / int(timeArray[0]) * 360;
+  float speed = float(trapDistance) / float(timeArray[0]) * 3.6;
+  println(speed);
   int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
   int totalTime = et + abs(reactionTime);
   postData[0] = pBarcode;

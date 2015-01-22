@@ -19,7 +19,6 @@ void serialEvent (Serial myPort) {
     if (match != null) {
       time1 = millis() - time0;
       time0 = millis();
-      print(inString);
       serialData = true;
       inString = trim(inString);
       String[] split = split(inString, ',');
@@ -27,10 +26,11 @@ void serialEvent (Serial myPort) {
         inData[i] = split[i];
       }
     }
-    match = match(inString, "yes");
-    if (match != null) {
+    inString = trim(inString);
+    String match2[] = match(inString, "yes.");
+    if (match2 != null) {
       yesReceived = true;
-    }
+  }
   }
 }
 
@@ -57,6 +57,29 @@ void greenOFF() {
     serialData = false;
   }
 }
+
+void whiteON() {
+  if (!greenON) {
+    if (serial) {
+      myPort.write("whiteON.");
+      myPort.clear();
+    }
+    greenON = true;
+    serialData = false;
+  }
+}
+
+void whiteOFF() {
+  if (greenON) {
+    if (serial) {
+      myPort.write("whiteOFF.");
+      myPort.clear();
+    }
+    greenON = false;
+    serialData = false;
+  }
+}
+
 void blueON() {
   if (!blueON) {
     if (serial) {
@@ -171,6 +194,13 @@ void tone3OFF() {
   }
 }
 
+void toneFalseStart() {
+  if (serial) {
+    myPort.write("toneFS.");
+    myPort.clear();
+  }
+}
+
 void play1upTone() {
   if (serial) {
      myPort.write("tone1UP.");
@@ -180,7 +210,7 @@ void play1upTone() {
 
 void sendUp() {
   if (serial) {
-   myPort.write("up");
+   myPort.write("up.");
    myPort.clear();
   }
 }
@@ -197,11 +227,10 @@ boolean ping() {
     yesReceived = false;
     sendUp();
     int time = millis();
-    while(millis() - time < 100) {
-      if(yesReceived) {
-        return true;
-      } 
-    }
+    delay(50);
+    if(yesReceived) {
+      return true;
+    } 
     return false;
   } else {
     return true;
