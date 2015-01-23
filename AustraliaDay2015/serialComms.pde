@@ -63,23 +63,23 @@ void greenOFF() {
 }
 
 void whiteON() {
-  if (!greenON) {
+  if (!whiteON) {
     if (serial) {
       myPort.write("whiteON.");
       myPort.clear();
     }
-    greenON = true;
+    whiteON = true;
     serialData = false;
   }
 }
 
 void whiteOFF() {
-  if (greenON) {
+  if (whiteON) {
     if (serial) {
       myPort.write("whiteOFF.");
       myPort.clear();
     }
-    greenON = false;
+    whiteON = false;
     serialData = false;
   }
 }

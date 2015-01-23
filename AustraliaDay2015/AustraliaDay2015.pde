@@ -18,7 +18,7 @@ int runUpTimer1 = runUpTimer + 2700;
 int time0, time1, time2;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived = false, pingFailed, heartbeat;
+boolean redON, greenON, blueON, yellowON, whiteON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived = false, pingFailed, heartbeat;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -409,7 +409,7 @@ void keyPressed() {
       player = typing;
       typing = "";
       for (int i = 0; i < barcodes.length; i++) {
-        if (player.equals(barcodes[i])) {
+        if (player.equals(barcodes[i]) && mode == 1) {
           firstClick = false;
           int selection = i;
           //          println(names[selection]);

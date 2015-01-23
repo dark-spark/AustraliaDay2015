@@ -215,10 +215,17 @@ void create() {
   }
   ellipse(20, 460, 40, 40);
 
-  if (yellowON) {
+  if (whiteON) {
     fill(255);
   } else {
     fill(50);
   }
   ellipse(20, 510, 40, 40);
+
+  if (yellowON) {
+    fill(255, 255, 0);
+  } else {
+    fill(50, 50, 0);
+  }
+  ellipse(20, 560, 40, 40);
 }
