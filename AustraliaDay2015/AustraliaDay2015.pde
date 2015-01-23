@@ -18,7 +18,7 @@ int runUpTimer1 = runUpTimer + 2700;
 int time0, time1, time2;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived, pingFailed, heartbeat;
+boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived = false, pingFailed, heartbeat;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -175,7 +175,13 @@ void draw() {
       }
       time2 = millis();
     }
-
+    
+    if (noReceived) {
+      stroke(255, 0, 0);
+      fill(255, 0, 0);
+      textSize(300);
+      text("Sensor\nBlocked", 200, 250);
+    }
     //Heartbeat 
     ellipseMode(CENTER);
     if (heartbeat) {
@@ -374,8 +380,6 @@ void draw() {
     textSize(300);
     if (yesReceived) {
       text("Ping \nFailed", 350, 250);
-    } else if (noReceived) {
-      text("Blocked \nSensor", 350, 250);
     }
     break;
   }
