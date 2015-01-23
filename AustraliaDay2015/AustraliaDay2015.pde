@@ -18,7 +18,7 @@ int runUpTimer1 = runUpTimer + 2700;
 int time0, time1, time2;
 int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
 boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, pingFailed, heartbeat;
+boolean redON, greenON, blueON, yellowON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived, pingFailed, heartbeat;
 boolean serialSent = false;
 int lightFlash;
 String timeArray[] = new String[6];
@@ -372,7 +372,11 @@ void draw() {
     stroke(255, 0, 0);
     fill(255, 0, 0);
     textSize(300);
-    text("Ping \nFailed", 350, 250);
+    if (yesReceived) {
+      text("Ping \nFailed", 350, 250);
+    } else if (noReceived) {
+      text("Blocked \nSensor", 350, 250);
+    }
     break;
   }
 

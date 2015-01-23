@@ -30,13 +30,11 @@ void serialEvent (Serial myPort) {
     String match2[] = match(inString, "yes.");
     if (match2 != null) {
       yesReceived = true;
-//    } else {
-//      noReceived = true);
+    } 
+    match2 = match(inString, "no.");
+    if (match2 != null) {
+      noReceived = true;
     }
-//    match2 = match(inString, "no.");
-//    if (match2 != null) {
-//      yesReceived = true;
-//    }
   }
 }
 
@@ -231,10 +229,11 @@ void reset() {
 boolean ping() {
   if(serial) {
     yesReceived = false;
+    noReceived = false;
     sendUp();
     int time = millis();
     delay(50);
-    if(yesReceived) {
+    if(yesReceived || noReceived) {
       return true;
     } 
     return false;
