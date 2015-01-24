@@ -75,7 +75,7 @@ void setup() {
 void draw() {
   background(0);
   sortResults();
-  create();
+//  create();
   mimicLights();
 
   switch(mode) {
@@ -504,7 +504,13 @@ void sortResults() {
 
 void mimicLights() {
   //Text for current mode for the swtich
+  textFont(f1);
+  stroke(255);
   text(mode, 20, 350);
+  noStroke();
+  fill(255);
+  rect(boxX, boxY, boxSize, boxSize);
+
 
   //Mimic lights
   ellipseMode(CORNER);
