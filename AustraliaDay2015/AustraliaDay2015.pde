@@ -73,8 +73,10 @@ void setup() {
 
 
 void draw() {
-
+  background(0);
+  sortResults();
   create();
+  mimicLights();
 
   switch(mode) {
   case 0:  //Set lights for initial position, no barcode set
@@ -463,4 +465,81 @@ void drawPixelArray(int[][] image, color color1, int posx, int posy, int multipl
       }
     }
   }
+}
+
+void sortResults() {
+  //Find Minimum sector time
+  for (int j = 0; j < 9; j++) {
+    for (int i = 0; i < index; i++) {
+      if (data[i][j] < min[j]) {
+        min[j] = data[i][j];
+      }
+    }
+  }
+
+  //Find Max sector time
+  for (int j = 0; j < 9; j++) {
+    for (int i = 0; i < index; i++) {
+      if (data[i][j] > max[j]) {
+        max[j] = data[i][j];
+      }
+    }
+  }
+
+  //Sort the list for ranking based on total time
+  for (int i = 0; i < index; i++) {
+    sortList[i] = data[i][8];
+  }
+  sortList = sort(sortList);
+
+  //Generate a list of the ranked positions
+  for (int i = 0; i < index; i++) {
+    for (int j = 0; j < index; j++) {
+      if (data[j][8] == sortList[i]) {
+        sortListPos[i] = j;
+      }
+    }
+  }
+}
+
+void mimicLights() {
+  //Text for current mode for the swtich
+  text(mode, 20, 350);
+
+  //Mimic lights
+  ellipseMode(CORNER);
+  if (redON) {
+    fill(255, 0, 0);
+  } else { 
+    fill(50, 0, 0);
+  }
+  ellipse(20, 360, 40, 40);
+
+  if (blueON) {
+    fill(0, 0, 255);
+  } else {
+    fill(0, 0, 50);
+  }
+  ellipse(20, 410, 40, 40);
+
+  if (greenON) {
+    fill(0, 255, 0);
+  } else {
+    fill(0, 50, 0);
+  }
+  ellipse(20, 460, 40, 40);
+
+  if (whiteON) {
+    fill(255);
+  } else {
+    fill(50);
+  }
+  ellipse(20, 510, 40, 40);
+
+  if (yellowON) {
+    fill(255, 255, 0);
+  } else {
+    fill(50, 50, 0);
+  }
+  ellipse(20, 560, 40, 40);
 }
