@@ -295,7 +295,7 @@ void updateName() {
 
 void formatPostData(float multiplier) {
   
-//  println("Multipler = " + multiplier);
+  println("Multipler = " + multiplier);
   
   float rt = reactionTime * multiplier;
   float ta0 = float(timeArray[0]) * multiplier;

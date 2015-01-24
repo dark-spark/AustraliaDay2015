@@ -199,15 +199,19 @@ void draw() {
       greenOFF();
       yellowON();
     }
+    
     if (sectorIndex >= 5) {
       sectorIndex = 0;
       pNameSet = false;
       running = false;
-      if (name.equals("Mugen")) {
+      
+      String match[] = match("Mugen", name);
+      if (match != null) {
         formatPostData(mugenMulti);
       } else {
         formatPostData(1);
       }
+      
       fillData();
       redOFF();
       greenOFF();
@@ -218,6 +222,7 @@ void draw() {
       count = 0;
       mode = 8;
     }
+    
     if (jumpStart) {
       mode = 9;
       toneFalseStart();
