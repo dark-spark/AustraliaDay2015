@@ -238,6 +238,6 @@ boolean ping() {
     } 
     return false;
   } else {
-    return true;
+    return false;
   }
 }

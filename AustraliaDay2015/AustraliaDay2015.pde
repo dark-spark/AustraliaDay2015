@@ -1,4 +1,4 @@
-import controlP5.*;  //<>// //<>//
+import controlP5.*;
 import processing.serial.*;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
@@ -8,100 +8,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.client.ClientProtocolException;
-
-Serial myPort;        
-int arrayLength = 1000;
-String inData[] = new String[1];
-int mode = 0;
-int runUpTimer = 3000;
-int runUpTimer1 = runUpTimer + 2700;
-int time0, time1, time2;
-int sectorIndex = 0, lightIndex = 0, lightTimer, countDown, reactionTime, reactionTime0, reactionTime1, r;
-boolean serialData = false;
-boolean redON, greenON, blueON, yellowON, whiteON, running, jumpStart, jumpEnable, lightsFinished, serial, yesReceived, noReceived = false, pingFailed, heartbeat;
-boolean serialSent = false;
-int lightFlash;
-String timeArray[] = new String[6];
-String postData[] = new String[10];
-boolean pNameSet = false;
-String pName = "";
-String pBarcode;
-String barcode;
-int currentPerson;
-int count = 0;
-String total;
-String name;
-float data[][] = new float[arrayLength][10];
-float sortList[] = new float[arrayLength];
-String names[] = new String[arrayLength];
-String songs[] = new String[arrayLength];
-String barcodes[] = new String[arrayLength];
-float srData[][] = new float[arrayLength][2];
-boolean nameSet = false;
-boolean sect1min = false;
-boolean sect2min = false;
-boolean sect3min = false;
-boolean sect4min = false;
-boolean totalmin = false;
-boolean flash = false;
-float min[] = new float[9];
-float max[] = new float[9];
-int sortListPos[] = new int[arrayLength];
-boolean firstClick = true;
-String typing = "";
-String player = "";
-int srIndex;
-int selection;
-ControlP5 cp5;
-ListBox l;
-
-int cnt=0;
-PFont f1, f2, f3, f4, f5, f6;
-int index;
-int valueX = 0;
-int valueY = 0;
-boolean sortFastest = true;
-boolean justShoot = false;
-color c2 = color(255, 220, 0), c1 = color(255, 50, 255), c3 = c1, c4 = c1;
-int boxX = 1000, boxY = 20, boxSize = 15;
-int box1X = 1000, box1Y = 230;
-
-float[] list = new float[0];
-float[] etlist = new float[0];
-float rank;
-float percentage;
-int trapDistance = 1000;
-int SgraphH = 38; //Speed graph scale
-int ETgraphH = 1500000; //ET graph scale
-int totalLength = 12000;
-float averageSpeed;
-int toneTime = 300; //Time for the flashing of the tone and lights.
-
-boolean salesForce = false;
-String[] accessDetails = new String[2];
-int[][] brokenHeart = {
-{0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0},
-{0,0,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,0,0,},
-{0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,},
-{0,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,},
-{1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,},
-{1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,},
-{1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,},
-{0,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,},
-{0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,},
-{0,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,},
-{0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,},
-{0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,},
-{0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,0,},
-{0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,},
-{0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,},
-{0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,},
-{0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,},
-{0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,},
-{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,}
-};
-
-
 
 void setup() {
   size(1280, 700);
@@ -189,7 +95,7 @@ void draw() {
       break;
     }
 
-    if (millis() - time2 > 2000) {
+    if (millis() - time2 > 1000) {
       heartbeat = !heartbeat;
       if (!ping()) {
         mode = 11;
@@ -204,14 +110,12 @@ void draw() {
       textSize(300);
       text("Sensor\nBlocked", 200, 250);
     }
-    //Heartbeat 
-    ellipseMode(CENTER);
+    //Heartbeat
     if (heartbeat) {
-      fill(255, 0, 0);
+      drawPixelArray(bigHeart, red, 1200, 20, 2);
     } else { 
-      fill(0, 0, 0);
+      drawPixelArray(smallHeart, red, 1200, 20, 2);
     }
-    ellipse(1255, 20, 30, 30);
 
     break;
 
@@ -396,6 +300,7 @@ void draw() {
       }
       time2 = millis();
     }
+    drawPixelArray(brokenHeart, red, 1200, 20, 2);
 
     stroke(255, 0, 0);
     fill(255, 0, 0);
@@ -525,4 +430,18 @@ void delay(int delay)
 {
   int time = millis();
   while (millis () - time <= delay);
+}
+
+void drawPixelArray(int[][] image, color color1, int posx, int posy, int multiplier) {
+
+  fill(color1);
+  stroke(color1);
+  
+  for (int i = 0; i < brokenHeart[0].length; i++) {
+    for (int j = 0; j < brokenHeart.length; j++) {
+      if (image[j][i] > 0) {
+        rect((i*multiplier) + posx, (j*multiplier) + posy, multiplier, multiplier);
+      }
+    }
+  }
 }
