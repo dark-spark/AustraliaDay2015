@@ -65,6 +65,7 @@ int ETgraphH = 1500000; //ET graph scale
 int totalLength = 12000;
 float averageSpeed;
 int toneTime = 300; //Time for the flashing of the tone and lights.
+float mugenMulti = 1.5;
 
 boolean salesForce = false;
 String[] accessDetails = new String[2];

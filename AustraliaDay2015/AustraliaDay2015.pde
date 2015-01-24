@@ -201,7 +201,11 @@ void draw() {
       sectorIndex = 0;
       pNameSet = false;
       running = false;
-      formatPostData();
+      if (name.equals("Mugen")) {
+        formatPostData(mugenMulti);
+      } else {
+        formatPostData(1);
+      }
       fillData();
       redOFF();
       greenOFF();
@@ -278,7 +282,11 @@ void draw() {
       sectorIndex = 0;
       pNameSet = false;
       running = false;
-      formatPostData();
+      if (name.equals("Mugen")) {
+        formatPostData(mugenMulti);
+      } else {
+        formatPostData(1);
+      }
       fillData();
       redOFF();
       greenOFF();
@@ -386,10 +394,21 @@ void updateName() {
   nameSet = true;
 }
 
-void formatPostData() {
-  float speed = float(trapDistance) / float(timeArray[0]) * 3.6;
-  int et = int(timeArray[1]) + int(timeArray[2]) + int(timeArray[3]) + int(timeArray[4]);
-  int totalTime = et + abs(reactionTime);
+void formatPostData(float multiplier) {
+  
+  print("Multipler = ");
+  println(multiplier);
+  
+  float rt = reactionTime * multiplier;
+  float ta1 = float(timeArray[1]) * multiplier;
+  float ta2 = float(timeArray[2]) * multiplier;
+  float ta3 = float(timeArray[3]) * multiplier;
+  float ta4 = float(timeArray[4]) * multiplier;
+  
+  float speed = float(trapDistance) / float(timeArray[0]) * multiplier * 3.6;
+  int et = int(ta1) + int(ta2) + int(ta3) + int(ta4);
+  int totalTime = et + int(abs(rt));
+  
   postData[0] = pBarcode;
   postData[1] = str(reactionTime + .0);
   postData[2] = str(speed);
