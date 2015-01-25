@@ -16,6 +16,7 @@ void serialEvent (Serial myPort) {
   String inString = myPort.readStringUntil('\n');
   println(inString);
   if (inString != null) {
+    blockedSensors = "";
     String match[] = match(inString, "t");
     if (match != null) {
       time1 = millis() - time0;
@@ -35,6 +36,7 @@ void serialEvent (Serial myPort) {
     match2 = match(inString, "no.");
     if (match2 != null) {
       noReceived = true;
+      blockedSensors = inString;
     }
   }
 }

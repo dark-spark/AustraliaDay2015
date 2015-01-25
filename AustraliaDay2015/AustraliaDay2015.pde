@@ -89,14 +89,13 @@ void draw() {
     jumpStart = false;
     time2 = millis();
     break;
-  case 1: //Check for barcode or name clicked, while waiting ping uC every 2 seconds to make sure its still alive.
 
+  case 1: //Check for barcode or name clicked, while waiting ping uC every 2 seconds to make sure its still alive.
     if (nameSet) {
       mode = 2;
       tone3ON();
       break;
     }
-
     if (millis() - time2 > 1000) {
       heartbeat = !heartbeat;
       if (!ping()) {
@@ -105,12 +104,8 @@ void draw() {
       }
       time2 = millis();
     }
-
     if (noReceived) {
-      stroke(255, 0, 0);
-      fill(255, 0, 0);
-      textSize(300);
-      text("Sensor\nBlocked", 200, 250);
+      mode = 12;
     }
     //Heartbeat
     if (heartbeat) {
@@ -118,9 +113,55 @@ void draw() {
     } else { 
       drawPixelArray(smallHeart, red, 1200, 20, 2);
     }
-
     break;
 
+  case 12: //Sensor Blocked
+    if (millis() - time2 > 1000) {
+      heartbeat = !heartbeat;
+      if (!ping()) {
+        mode = 11;
+        heartbeat = false;
+      }
+      time2 = millis();
+    }
+    if (yesReceived) {
+      mode = 0;
+    }
+    if (noReceived) {
+      stroke(255, 0, 0);
+      fill(255, 0, 0);
+      textSize(200);
+      text("Sensor", 200, 200);
+      text("Blocked", 200, 350);
+      String match[] = match(blockedSensors, "1");
+      if (match != null) {  
+        text("1", 100, 500);
+      }
+      match = match(blockedSensors, "2");
+      if (match != null) {  
+        text("2", 200, 500);
+      }
+      match = match(blockedSensors, "3");
+      if (match != null) {  
+        text("3", 300, 500);
+      }
+      match = match(blockedSensors, "4");
+      if (match != null) {  
+        text("4", 400, 500);
+      }
+      match = match(blockedSensors, "5");
+      if (match != null) {  
+        text("5", 500, 500);
+      }
+    }
+    //Heartbeat
+    if (heartbeat) {
+      drawPixelArray(bigHeart, red, 1200, 20, 2);
+    } else { 
+      drawPixelArray(smallHeart, red, 1200, 20, 2);
+    }
+    break;
+    
   case 2:  //Barcode set
     blueON();
     whiteOFF();
