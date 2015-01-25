@@ -69,7 +69,7 @@ float mugenMulti = 1.5;
 
 String blockedSensors = "";
 
-boolean salesForce = false;
+boolean salesForce = true;
 String[] accessDetails = new String[2];
 
 color red = color(255, 0, 0);

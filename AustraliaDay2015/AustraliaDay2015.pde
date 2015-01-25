@@ -75,7 +75,7 @@ void setup() {
 void draw() {
   background(0);
   sortResults();
-  create();
+//  create();
   mimicLights();
 
   switch(mode) {
@@ -96,7 +96,7 @@ void draw() {
       tone3ON();
       break;
     }
-    if (millis() - time2 > 1000) {
+    if (millis() - time2 > 5000) {
       heartbeat = !heartbeat;
       if (!ping()) {
         mode = 11;
@@ -116,7 +116,8 @@ void draw() {
     break;
 
   case 12: //Sensor Blocked
-    if (millis() - time2 > 1000) {
+    whiteOFF();
+    if (millis() - time2 > 5000) {
       heartbeat = !heartbeat;
       if (!ping()) {
         mode = 11;
@@ -163,6 +164,7 @@ void draw() {
     break;
     
   case 2:  //Barcode set
+    reset();
     blueON();
     whiteOFF();
     mode = 10;

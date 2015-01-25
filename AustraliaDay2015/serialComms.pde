@@ -14,7 +14,7 @@ boolean startSerial() {
 
 void serialEvent (Serial myPort) {
   String inString = myPort.readStringUntil('\n');
-  println(inString);
+  print(inString);
   if (inString != null) {
     blockedSensors = "";
     String match[] = match(inString, "t");
@@ -224,7 +224,7 @@ void sendUp() {
 
 void reset() {
   if (serial) {
-   myPort.write("reset");
+   myPort.write("reset.");
    myPort.clear();
   }
 }
