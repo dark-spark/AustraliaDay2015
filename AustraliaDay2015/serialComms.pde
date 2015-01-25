@@ -14,6 +14,7 @@ boolean startSerial() {
 
 void serialEvent (Serial myPort) {
   String inString = myPort.readStringUntil('\n');
+  println(inString);
   if (inString != null) {
     String match[] = match(inString, "t");
     if (match != null) {
@@ -238,6 +239,6 @@ boolean ping() {
     } 
     return false;
   } else {
-    return true;
+    return false;
   }
 }

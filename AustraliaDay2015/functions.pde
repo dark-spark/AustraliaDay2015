@@ -221,6 +221,7 @@ void mimicLights() {
   noStroke();
   fill(255);
   rect(boxX, boxY, boxSize, boxSize);
+  rect(boxX1, boxY1, boxSize, boxSize);
 
 
   //Mimic lights
@@ -295,7 +296,7 @@ void updateName() {
 
 void formatPostData(float multiplier) {
   
-  println("Multipler = " + multiplier);
+//  println("Multipler = " + multiplier);
   
   float rt = reactionTime * multiplier;
   float ta0 = float(timeArray[0]) * multiplier;

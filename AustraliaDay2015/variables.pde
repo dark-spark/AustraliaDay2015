@@ -53,7 +53,7 @@ boolean sortFastest = true;
 boolean justShoot = false;
 color c2 = color(255, 220, 0), c1 = color(255, 50, 255), c3 = c1, c4 = c1;
 int boxX = 1000, boxY = 20, boxSize = 15;
-int box1X = 1000, box1Y = 230;
+int boxX1 = 920, boxY1 = 20;
 
 float[] list = new float[0];
 float[] etlist = new float[0];

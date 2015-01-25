@@ -75,7 +75,7 @@ void setup() {
 void draw() {
   background(0);
   sortResults();
-//  create();
+  create();
   mimicLights();
 
   switch(mode) {
@@ -105,7 +105,7 @@ void draw() {
       }
       time2 = millis();
     }
-    
+
     if (noReceived) {
       stroke(255, 0, 0);
       fill(255, 0, 0);
@@ -199,19 +199,19 @@ void draw() {
       greenOFF();
       yellowON();
     }
-    
+
     if (sectorIndex >= 5) {
       sectorIndex = 0;
       pNameSet = false;
       running = false;
-      
+
       String match[] = match("Mugen", name);
       if (match != null) {
         formatPostData(mugenMulti);
       } else {
         formatPostData(1);
       }
-      
+
       fillData();
       redOFF();
       greenOFF();
@@ -222,7 +222,7 @@ void draw() {
       count = 0;
       mode = 8;
     }
-    
+
     if (jumpStart) {
       mode = 9;
       toneFalseStart();
@@ -383,9 +383,13 @@ void mousePressed() {
     //      sortFastest = true;
     //      c3 = c1;
     //    }
-    time1 = millis() - time0;
-    time0 = millis();
-    serialData = true;
-    inData[0] = "t 100";
+        time1 = millis() - time0;
+        time0 = millis();
+        serialData = true;
+        inData[0] = "t 100";
+
+    if (mouseX > boxX1 && mouseX < boxX1+boxSize && mouseY >boxY1 && mouseY < boxY1+boxSize) {
+      reset();
+    }
   }
 }
